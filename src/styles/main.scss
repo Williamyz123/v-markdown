@@ -1,2 +1,5 @@
+//src/styles/main.scss
 @use 'core/variables';
 @use 'core/mixins';
+@import 'components/editor';
+@import 'components/toolbar';

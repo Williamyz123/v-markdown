@@ -1,3 +1,4 @@
+// App.tsx
 import React from 'react';
 // @ts-ignore
 import logo from '@/src/logo.svg';

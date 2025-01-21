@@ -1,0 +1,36 @@
+// src/styles/components/_toolbar.scss
+.editor-toolbar {
+  min-height: 48px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  .toolbar-button {
+    padding: 6px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: #f0f0f0;
+    }
+
+    &.active {
+      background: #e6f7ff;
+      border-color: #1890ff;
+      color: #1890ff;
+    }
+
+    i {
+      font-style: normal;
+    }
+  }
+}
