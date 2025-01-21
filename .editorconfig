@@ -1,0 +1,8 @@
+root = true
+
+[*]
+end_of_line = lf          # 换行符使用 lf
+insert_final_newline = true   # 文件末尾插入空行
+charset = utf-8           # 文件编码使用 utf-8
+indent_style = space      # 缩进使用空格
+indent_size = 2           # 缩进大小为2个空格
