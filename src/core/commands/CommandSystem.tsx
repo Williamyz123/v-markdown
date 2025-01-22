@@ -1,6 +1,5 @@
 // src/core/commands/CommandSystem.tsx
 import { useRef, useCallback} from 'react';
-// import { useEditor } from '../editor/EditorContext';
 
 // 命令接口定义：描述一个可执行的编辑器命令
 export interface Command {
