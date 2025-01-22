@@ -51,7 +51,9 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       // 更新内容时，保存当前状态到历史记录，并更新内容和解析结果
       const { content, parseResult } = action.payload;
       const past = [...state.history.past, { content: state.content, parseResult: state.parseResult }];
-      return {
+
+      // 保持现有的选区状态
+      const newState = {
         ...state,
         content,
         parseResult,
@@ -60,6 +62,9 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
           future: []            // 清空重做记录
         }
       };
+
+      console.log('Reducer更新状态，新的选区:', newState.selection);
+      return newState;
     }
     case 'UPDATE_SELECTION':
       // 更新选区位置
@@ -132,20 +137,28 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     changes: ContentChange[]
   ) => {
     try {
+      console.log('handleContentUpdate 被调用，新内容:', content);
+
       // 根据是否有变更内容决定使用增量解析还是完整解析
       const parseResult = changes.length > 0
         ? parser.parseIncremental(content, changes, state.options)
         : parser.parse(content, state.options);
 
+      console.log('开始更新编辑器状态');
       // 更新状态
       dispatch({
         type: 'UPDATE_CONTENT',
         payload: { content, parseResult }
       });
+      console.log('编辑器状态已更新');
+
+      // 强制更新预览区域
+      parseResult && console.log('新的 HTML:', parseResult.html);
+
     } catch (error) {
       console.error('解析错误:', error);
     }
-  }, [parser, state.options]);
+  }, [parser, state.options, dispatch]); // 添加 dispatch 作为依赖
 
   // 创建 Context 值（使用 useMemo 优化性能）
   const value = useMemo(() => ({

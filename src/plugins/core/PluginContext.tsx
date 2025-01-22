@@ -1,10 +1,9 @@
 // src/plugins/core/PluginContext.tsx
-import React, {createContext, useCallback, useContext, useMemo, useRef, useState} from 'react';
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import { PluginManager } from './PluginManager';
-import { Plugin, PluginContext as IPluginContext } from '@/types/plugin';
+import {EditorAPI, Plugin, PluginContext as IPluginContext} from '@/types/plugin';
 import { useEditor } from '@/core/editor/EditorContext';
 import { useCommands } from '@/core/commands/CommandSystem';
-
 
 // 创建插件系统的 Context
 const PluginContext = createContext<IPluginContext | null>(null);
@@ -15,39 +14,72 @@ export const PluginProvider: React.FC<{ children: React.ReactNode }> = ({
                                                                           children
                                                                         }) => {
   const editor = useEditor();
-  const commands = useCommands();
+  const { registerCommand, executeCommand } = useCommands();
   const [pluginCount, setPluginCount] = useState(0);
 
-  // 使用 useRef 来保持 pluginManager 的引用稳定
+  // 创建一个 ref 来存储最新的编辑器状态
+  const editorStateRef = useRef(editor.state);
+
+  // 当编辑器状态改变时更新 ref
+  useEffect(() => {
+    editorStateRef.current = editor.state;
+  }, [editor.state]);
+
+  // 使用 useMemo 确保 API 引用稳定
+  const editorAPI = useMemo<EditorAPI>(() => ({
+    commands: {
+      registerCommand,
+      executeCommand
+    },
+    editor: {
+      getContent: () => {
+        // 使用 ref 获取最新的内容
+        const content = editorStateRef.current.content;
+        console.log('getContent 被调用，返回内容:', content);
+        return content;
+      },
+      setContent: (content) => {
+        console.log('setContent 被调用，新内容:', content);
+        return editor.handleContentUpdate(content, []);
+      },
+      getSelection: () => {
+        // 使用 ref 获取最新的选区
+        const selection = editorStateRef.current.selection;
+        console.log('getSelection 被调用，当前选区:', selection);
+        return selection;
+      },
+      setSelection: (start, end) => {
+        console.log('setSelection 被调用，新选区:', { start, end });
+        editor.dispatch({ type: 'UPDATE_SELECTION', payload: { start, end } });
+      }
+    },
+    theme: {
+      getCurrentTheme: () => document.documentElement.dataset.theme || 'light',
+      setTheme: (theme) => {
+        document.documentElement.dataset.theme = theme;
+      }
+    }
+  }), [editor, registerCommand, executeCommand]);
+
+  // 使用 useRef 保持 pluginManager 引用稳定
   const pluginManagerRef = useRef<PluginManager | null>(null);
 
   // 初始化 pluginManager
   if (!pluginManagerRef.current) {
-    pluginManagerRef.current = new PluginManager({
-      commands,
-      editor: {
-        getContent: () => editor.state.content,
-        setContent: (content) => editor.handleContentUpdate(content, []),
-        getSelection: () => editor.state.selection,
-        setSelection: (start, end) =>
-          editor.dispatch({ type: 'UPDATE_SELECTION', payload: { start, end } })
-      },
-      theme: {
-        getCurrentTheme: () => document.documentElement.dataset.theme || 'light',
-        setTheme: (theme) => {
-          document.documentElement.dataset.theme = theme;
-        }
-      }
-    });
+    console.log('创建新的 PluginManager');
+    pluginManagerRef.current = new PluginManager(editorAPI);
   }
 
+  // 注册插件的函数
   const registerPlugin = useCallback((plugin: Plugin) => {
+    console.log('尝试注册插件:', plugin.id);
     if (pluginManagerRef.current) {
       pluginManagerRef.current.registerPlugin(plugin);
       setPluginCount(prev => prev + 1);
     }
-  }, []); // 移除所有依赖
+  }, []);
 
+  // 创建 Context 值
   const value = useMemo<IPluginContext>(() => ({
     registerPlugin,
     unregisterPlugin: (pluginId) => {
