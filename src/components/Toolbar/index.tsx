@@ -1,19 +1,58 @@
 // src/components/Toolbar/index.tsx
-import React, {useMemo} from 'react';
+import React from 'react';
 import { usePlugins } from '@/plugins/core/PluginContext';
+import { useStyles } from '@/styles/core/StyleContext';
 
-export const Toolbar: React.FC = () => {
-  const { getPluginExtensions, pluginCount } = usePlugins();
+interface ToolbarProps {
+  children?: React.ReactNode;
+}
 
-  // 使用 pluginCount 作为依赖，确保插件变化时重新获取扩展
-  const toolbarItems = useMemo(() => {
-    console.log('获取工具栏项，当前插件数:', pluginCount);
+export const Toolbar: React.FC<ToolbarProps> = ({ children }) => {
+  const { getPluginExtensions } = usePlugins();
+  const {
+    theme,
+    codeTheme,
+    setTheme,
+    setCodeTheme,
+    themeOptions,
+    codeThemeOptions
+  } = useStyles();
+
+  const toolbarItems = React.useMemo(() => {
     return getPluginExtensions('renderToolbarItems');
-  }, [getPluginExtensions, pluginCount]);
+  }, [getPluginExtensions]);
 
   return (
     <div className="editor-toolbar">
-      {toolbarItems}
+      <div className="toolbar-left">
+        {toolbarItems}
+      </div>
+      <div className="toolbar-right">
+        <div className="theme-selector">
+          <select
+            value={theme}
+            onChange={(e) => setTheme(e.target.value)}
+            className="theme-select"
+          >
+            {themeOptions.map(option => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={codeTheme}
+            onChange={(e) => setCodeTheme(e.target.value)}
+            className="code-theme-select"
+          >
+            {codeThemeOptions.map(option => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
     </div>
   );
 };

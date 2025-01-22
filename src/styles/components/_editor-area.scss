@@ -1,0 +1,25 @@
+// src/styles/components/_editor-area.scss
+.edit-area {
+  height: 100%;
+  // 移除外层容器的滚动
+  overflow: hidden;
+
+  textarea {
+    width: 100%;
+    height: 100%;
+    border: none;
+    resize: none;
+    outline: none;
+    font-family: monospace;
+    background: inherit;
+    color: inherit;
+
+    // 只保留竖向滚动
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    // 允许文本自动换行
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}

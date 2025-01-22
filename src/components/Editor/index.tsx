@@ -1,18 +1,19 @@
 // src/components/Editor/index.tsx
-import React, {useEffect, useRef} from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useStyles } from '@/styles/core/StyleContext';
 import { usePlugins } from '@/plugins/core/PluginContext';
 import { createTextFormattingPlugin } from '@/plugins/base/TextFormattingPlugin';
-import {Toolbar} from '@/components/Toolbar';
-import {EditArea} from '@/components/EditArea';
-import {PreviewArea} from '@/components/PreviewArea';
+import { Toolbar } from '../Toolbar';
+import { EditArea } from '../EditArea';
+import { PreviewArea } from '../PreviewArea';
 
 const Editor: React.FC = () => {
+  const { theme, setTheme } = useStyles();
   const { registerPlugin } = usePlugins();
-  // 使用 ref 来追踪插件是否已经注册
   const pluginRegistered = useRef(false);
 
+  // 初始化插件
   useEffect(() => {
-    // 只在组件首次挂载时注册插件
     if (!pluginRegistered.current) {
       console.log('开始注册文本格式化插件');
       const plugin = createTextFormattingPlugin();
@@ -20,13 +21,32 @@ const Editor: React.FC = () => {
       console.log('文本格式化插件注册完成');
       pluginRegistered.current = true;
     }
-  }, [registerPlugin]); // 保留 registerPlugin 作为依赖
+  }, [registerPlugin]);
+
+  const themes = [
+    { id: 'light', name: '浅色主题' },
+    { id: 'dark', name: '深色主题' }
+  ];
 
   return (
     <div className="markdown-editor">
-      <Toolbar />
-      <EditArea />
-      <PreviewArea />
+      <Toolbar>
+        <select
+          value={theme}
+          onChange={(e) => setTheme(e.target.value)}
+          className="theme-selector"
+        >
+          {themes.map(theme => (
+            <option key={theme.id} value={theme.id}>
+              {theme.name}
+            </option>
+          ))}
+        </select>
+      </Toolbar>
+      <div className="editor-main">
+        <EditArea />
+        <PreviewArea />
+      </div>
     </div>
   );
 };

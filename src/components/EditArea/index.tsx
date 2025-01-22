@@ -98,7 +98,7 @@ export const EditArea: React.FC = () => {
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        className="w-full h-full p-4 resize-none"
+        className="resize-none"
         placeholder="在这里输入 Markdown 文本..."
       />
     </div>
