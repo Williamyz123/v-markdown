@@ -1,11 +1,15 @@
 // src/components/EditArea/index.tsx
 import React, { ChangeEvent, useRef, useEffect, useCallback } from 'react';
 import { useEditor } from '@/core/editor/EditorContext';
+import { useKeyboardShortcuts } from './KeyboardHandler';
 
 export const EditArea: React.FC = () => {
   const { state, dispatch, handleContentUpdate } = useEditor();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+
+  // 启用快捷键支持，传入 textareaRef
+  useKeyboardShortcuts(textareaRef);
 
   const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     handleContentUpdate(e.target.value, []);

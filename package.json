@@ -15,8 +15,8 @@
     "sass": "^1.83.4"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "start": "cross-env GENERATE_SOURCEMAP=false craco start",
+    "build": "cross-env GENERATE_SOURCEMAP=false craco build",
     "test": "craco test",
     "eject": "craco eject"
   },
@@ -42,6 +42,7 @@
     "@craco/craco": "^7.1.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
+    "cross-env": "^7.0.3",
     "cypress": "^14.0.0",
     "jest": "^27.5.1"
   }

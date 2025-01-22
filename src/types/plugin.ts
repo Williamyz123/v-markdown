@@ -30,6 +30,7 @@ export interface Plugin {
   name: string;                   // 插件名称
   description?: string;           // 插件描述
   version?: string;               // 插件版本
+  api?: EditorAPI;               // 插件API实例
 
   // 生命周期方法
   initialize: (api: EditorAPI) => void;  // 初始化
@@ -51,5 +52,5 @@ export interface PluginContext {
   unregisterPlugin: (pluginId: string) => void;
   getPlugin: (pluginId: string) => Plugin | undefined;
   getPluginExtensions: (extensionPoint: string) => React.ReactNode[];
-  pluginCount: number; // 添加新的属性
+  pluginCount: number;
 }
