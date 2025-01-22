@@ -1,58 +1,41 @@
 // src/styles/components/_toolbar.scss
 .editor-toolbar {
-  padding: 4px 8px;
+  padding: 8px 16px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
 
-  .toolbar-button {
-    padding: 3px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-
-    @each $theme, $colors in $themes {
-      [data-theme='#{$theme}'] & {
-        background-color: map-get($colors, 'bg');
-        border: 1px solid map-get($colors, 'border');
-        color: map-get($colors, 'text');
-
-        &:hover {
-          background-color: map-get($colors, 'toolbar-bg');
-        }
-
-        &.active {
-          background-color: rgba(24, 144, 255, 0.1);
-          border-color: #1890ff;
-          color: #1890ff;
-        }
-      }
-    }
-
-    i {
-      font-style: normal;
+  @each $theme, $colors in $themes {
+    [data-theme='#{$theme}'] & {
+      background-color: map-get($colors, 'toolbar-bg');
+      border-bottom: 1px solid map-get($colors, 'border');
     }
   }
 
-  select {
-    @each $theme, $colors in $themes {
-      [data-theme='#{$theme}'] & {
-        background-color: map-get($colors, 'bg');
-        border: 1px solid map-get($colors, 'border');
-        color: map-get($colors, 'text');
-      }
-    }
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    outline: none;
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-    &:hover {
-      border-color: #1890ff;
+  .toolbar-right {
+    .theme-selector {
+      display: flex;
+      gap: 8px;
+
+      select {
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+
+        @each $theme, $colors in $themes {
+          [data-theme='#{$theme}'] & {
+            background-color: map-get($colors, 'bg');
+            color: map-get($colors, 'text');
+            border: 1px solid map-get($colors, 'border');
+          }
+        }
+      }
     }
   }
 }

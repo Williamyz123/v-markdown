@@ -1,7 +1,7 @@
 // src/components/PreviewArea/index.tsx
 import React from 'react';
 import { useEditor } from '@/core/editor/EditorContext';
-import { useStyles } from '@/styles/core/StyleContext';
+import { useStyles } from '@/styles/StyleContext';
 
 export const PreviewArea: React.FC = () => {
   const { state } = useEditor();

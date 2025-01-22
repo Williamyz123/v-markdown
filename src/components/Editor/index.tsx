@@ -1,6 +1,6 @@
 // src/components/Editor/index.tsx
 import React, { useEffect, useRef } from 'react';
-import { useStyles } from '@/styles/core/StyleContext';
+import { useStyles } from '@/styles/StyleContext';
 import { usePlugins } from '@/plugins/core/PluginContext';
 import { createTextFormattingPlugin } from '@/plugins/base/TextFormattingPlugin';
 import { Toolbar } from '../Toolbar';

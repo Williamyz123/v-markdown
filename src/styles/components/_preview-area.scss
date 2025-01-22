@@ -1,61 +1,50 @@
 // src/styles/components/_preview-area.scss
 .preview-area {
+  padding: 1rem;
   overflow-y: auto;
-  border-left: 1px solid var(--border-color);
 
-  // 基本内容样式
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: 1em;
-    margin-bottom: 0.5em;
-    font-weight: bold;
+  @each $theme, $colors in $themes {
+    [data-theme='#{$theme}'] & {
+      background-color: map-get($colors, 'preview-bg');
+    }
   }
 
-  h1 { font-size: 2em; }
-  h2 { font-size: 1.5em; }
-  h3 { font-size: 1.3em; }
-
-  p {
-    margin-bottom: 1em;
-    line-height: 1.6;
-  }
-
-  // 代码块样式
+  // 预览区代码块样式
   pre {
-    margin: 1em 0;
-    padding: 1em;
+    margin: 1rem 0;
+    padding: 1rem;
     border-radius: 4px;
-    background-color: var(--code-bg);
     overflow-x: auto;
 
-    code {
-      font-family: monospace;
+    @each $theme, $colors in $code-themes {
+      [data-code-theme='#{$theme}'] & {
+        background-color: map-get($colors, 'bg');
+        color: map-get($colors, 'text');
+
+        .keyword {
+          color: map-get($colors, 'keyword');
+        }
+
+        .comment {
+          color: map-get($colors, 'comment');
+        }
+      }
     }
   }
 
-  // 内联代码样式
-  code {
-    padding: 0.2em 0.4em;
-    margin: 0 0.2em;
-    border-radius: 3px;
-    background-color: var(--code-bg);
-    font-family: monospace;
-  }
-
-  // 列表样式
-  ul, ol {
-    margin: 1em 0;
-    padding-left: 2em;
-
-    li {
-      margin-bottom: 0.5em;
-    }
-  }
-
-  // 引用样式
+  // 其他 Markdown 样式
+  h1, h2, h3 { margin: 1em 0 0.5em; }
+  p { margin-bottom: 1em; line-height: 1.6; }
+  ul, ol { margin: 1em 0; padding-left: 2em; }
   blockquote {
     margin: 1em 0;
     padding: 0.5em 1em;
-    border-left: 4px solid var(--border-color);
-    background-color: rgba(0, 0, 0, 0.05);
+    border-left: 4px solid;
+
+    @each $theme, $colors in $themes {
+      [data-theme='#{$theme}'] & {
+        border-left-color: map-get($colors, 'border');
+      }
+    }
   }
 }

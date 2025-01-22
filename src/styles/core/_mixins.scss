@@ -1,6 +1,0 @@
-//src/styles/core/_mixins.scss
-@mixin theme-variant($theme: 'light') {
-  [data-theme='#{$theme}'] & {
-    @content;
-  }
-}

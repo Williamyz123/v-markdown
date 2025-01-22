@@ -1,92 +1,17 @@
 // src/styles/main.scss
-@import 'abstracts/variables';
-@import 'abstracts/mixins';
 
-// Import component styles
-@import 'components/editor-area';
-@import 'components/preview-area';
-@import 'components/toolbar';
+@import './abstracts/variables';
+@import './abstracts/mixins';
 
+// 重置样式
 * {
-  padding: 0;
   margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-.markdown-editor {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  width: 100%;
 
-  @each $theme, $colors in $themes {
-    &[data-theme='#{$theme}'] {
-      background-color: map-get($colors, 'bg');
-      color: map-get($colors, 'text');
-
-      .editor-toolbar {
-        background-color: map-get($colors, 'toolbar-bg');
-        border-bottom: 1px solid map-get($colors, 'border');
-
-        select {
-          background-color: map-get($colors, 'bg');
-          color: map-get($colors, 'text');
-          border: 1px solid map-get($colors, 'border');
-          padding: 4px 8px;
-          border-radius: 4px;
-        }
-      }
-
-      .editor-main {
-        .edit-area {
-          background-color: map-get($colors, 'editor-bg');
-          border-right: 1px solid map-get($colors, 'border');
-
-          textarea {
-            background-color: map-get($colors, 'editor-bg');
-            color: map-get($colors, 'text');
-          }
-        }
-
-        .preview-area {
-          background-color: map-get($colors, 'preview-bg');
-        }
-      }
-    }
-  }
-
-  .editor-toolbar {
-    padding: 8px 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    .toolbar-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .toolbar-right {
-      .theme-selector {
-        display: flex;
-        gap: 8px;
-      }
-    }
-  }
-
-  .editor-main {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-
-    .preview-area {
-      flex: 1;
-      height: 100%;
-      overflow-y: auto;
-    }
-
-   .edit-area {
-      flex: 1;
-      height: 100%;
-    }
-  }
-}
+// 导入组件样式
+@import './components/editor';
+@import './components/toolbar';
+@import './components/editor-area';
+@import './components/preview-area';

@@ -1,4 +1,6 @@
 // src/styles/abstracts/_variables.scss
+
+// 主题配置
 $themes: (
   'light': (
     'bg': #ffffff,
@@ -18,6 +20,7 @@ $themes: (
   )
 );
 
+// 代码块主题配置
 $code-themes: (
   'github': (
     'bg': #f6f8fa,
