@@ -13,7 +13,6 @@ export const Toolbar: React.FC = () => {
 
   return (
     <div className="editor-toolbar">
-      156
       {toolbarItems}
     </div>
   );

@@ -63,8 +63,15 @@ export const createTextFormattingPlugin = (): Plugin => {
           console.log('命令执行时的选区:', selection);
           console.log('命令执行时的内容:', content);
 
+          // 检查是否有有效的选区
           if (selection.start === selection.end) {
             console.log('没有选中文本，命令终止');
+            return;
+          }
+
+          // 检查选区是否在内容范围内
+          if (selection.start < 0 || selection.end > content.length) {
+            console.log('无效的选区范围，命令终止');
             return;
           }
 
@@ -89,6 +96,13 @@ export const createTextFormattingPlugin = (): Plugin => {
 
           // 更新选区
           api.editor.setSelection(newStart, newEnd);
+        },
+
+        // 添加命令可用性检查
+        isEnabled: () => {
+          const selection = api.editor.getSelection();
+          // 只有当有文本被选中时命令才可用
+          return selection.start !== selection.end;
         }
       });
 
