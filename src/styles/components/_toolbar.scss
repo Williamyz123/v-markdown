@@ -1,4 +1,5 @@
 // src/styles/components/_toolbar.scss
+
 .editor-toolbar {
   padding: 8px 16px;
   display: flex;
@@ -16,6 +17,32 @@
     display: flex;
     align-items: center;
     gap: 8px;
+
+    // 工具栏按钮样式
+    .toolbar-button {
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      @each $theme, $colors in $themes {
+        [data-theme='#{$theme}'] & {
+          background-color: map-get($colors, 'bg');
+          border: 1px solid map-get($colors, 'border');
+          color: map-get($colors, 'text');
+
+          &:hover {
+            background-color: map-get($colors, 'toolbar-bg');
+          }
+
+          &.active {
+            background-color: rgba(24, 144, 255, 0.1);
+            border-color: #1890ff;
+            color: #1890ff;
+          }
+        }
+      }
+    }
   }
 
   .toolbar-right {
@@ -24,18 +51,66 @@
       gap: 8px;
 
       select {
-        padding: 4px 8px;
+        appearance: none; // 移除默认的下拉箭头
+        padding-right: 12px; // 右侧留出空间放置自定义箭头
         border-radius: 4px;
         cursor: pointer;
+        min-width: 80px;
+        font-size: 14px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
 
         @each $theme, $colors in $themes {
           [data-theme='#{$theme}'] & {
-            background-color: map-get($colors, 'bg');
             color: map-get($colors, 'text');
+            background-color: map-get($colors, 'bg');
             border: 1px solid map-get($colors, 'border');
+
+            // 自定义下拉箭头颜色
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='#{str-replace(#{map-get($colors, 'text')}, '#', '%23')}' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+
+            &:hover {
+              border-color: #1890ff;
+            }
+
+            &:focus {
+              outline: none;
+              border-color: #1890ff;
+              box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+            }
+
+            // 选项样式
+            option {
+              color: map-get($colors, 'text');
+              background-color: map-get($colors, 'bg');
+              padding: 8px;
+            }
           }
+        }
+
+        // 为 select 添加动画效果
+        transition: all 0.2s ease;
+
+        &.theme-select {
+          margin-right: 8px;
+        }
+
+        &.code-theme-select {
+          // 可以为代码主题选择器添加特殊样式
         }
       }
     }
   }
+}
+
+// 添加一个工具函数来处理颜色值中的 # 符号
+@function str-replace($string, $search, $replace: '') {
+  $index: str-index($string, $search);
+
+  @if $index {
+    @return str-slice($string, 1, $index - 1) + $replace + str-slice($string, $index + str-length($search));
+  }
+
+  @return $string;
 }

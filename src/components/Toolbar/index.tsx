@@ -20,21 +20,31 @@ export const Toolbar: React.FC<ToolbarProps> = ({ children }) => {
       <div className="toolbar-left">
         {toolbarItems}
       </div>
-      <div className="theme-selector">
-        <select value={theme} onChange={e => setTheme(e.target.value)}>
-          {themeOptions.map(option => (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
-        <select value={codeTheme} onChange={e => setCodeTheme(e.target.value)}>
-          {codeThemeOptions.map(option => (
-            <option key={option.id} value={option.id}>
-              {option.name}
-            </option>
-          ))}
-        </select>
+      <div className="toolbar-right">
+        <div className="theme-selector">
+          <select
+            value={theme}
+            onChange={e => setTheme(e.target.value)}
+            className="theme-select"
+          >
+            {themeOptions.map(option => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={codeTheme}
+            onChange={e => setCodeTheme(e.target.value)}
+            className="code-theme-select"
+          >
+            {codeThemeOptions.map(option => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );
