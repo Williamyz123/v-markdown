@@ -19,12 +19,12 @@ export const EditArea: React.FC = () => {
   // 使用 useCallback 记忆化 handleSelect 函数
   const handleSelect = useCallback(() => {
     const textarea = textareaRef.current;
-    if (textarea) {
+    if (textarea && isFocused) {
       const start = textarea.selectionStart;
       const end = textarea.selectionEnd;
 
-      // 只有在编辑区域获得焦点时才更新选区
-      if (isFocused) {
+      // 只在选区真正改变时才更新
+      if (selectionRef.current.start !== start || selectionRef.current.end !== end) {
         selectionRef.current = { start, end };
         console.log('Selection changed:', { start, end });
 
@@ -39,15 +39,13 @@ export const EditArea: React.FC = () => {
   // 处理焦点变化
   const handleFocus = useCallback(() => {
     setIsFocused(true);
+    // 恢复选区
     const textarea = textareaRef.current;
-    if (textarea) {
-      // 恢复之前的选区
-      if (selectionRef.current.start !== selectionRef.current.end) {
-        textarea.setSelectionRange(
-          selectionRef.current.start,
-          selectionRef.current.end
-        );
-      }
+    if (textarea && selectionRef.current.start !== selectionRef.current.end) {
+      textarea.setSelectionRange(
+        selectionRef.current.start,
+        selectionRef.current.end
+      );
     }
   }, []);
 
@@ -60,18 +58,22 @@ export const EditArea: React.FC = () => {
     });
   }, [dispatch]);
 
-  // 监听 mouseup 和 keyup 事件以确保选区更新
+  // 监听选区更新事件
   useEffect(() => {
     const textarea = textareaRef.current;
     if (textarea) {
-      const updateSelection = () => handleSelect();
+      // 使用 selectionchange 事件替代多个事件监听
+      const handleSelectionChange = () => {
+        if (document.activeElement === textarea) {
+          handleSelect();
+        }
+      };
 
-      textarea.addEventListener('mouseup', updateSelection);
-      textarea.addEventListener('keyup', updateSelection);
+      // 监听全局的 selectionchange 事件
+      document.addEventListener('selectionchange', handleSelectionChange);
 
       return () => {
-        textarea.removeEventListener('mouseup', updateSelection);
-        textarea.removeEventListener('keyup', updateSelection);
+        document.removeEventListener('selectionchange', handleSelectionChange);
       };
     }
   }, [handleSelect]);
@@ -79,9 +81,12 @@ export const EditArea: React.FC = () => {
   // 同步选择状态
   useEffect(() => {
     const textarea = textareaRef.current;
-    if (textarea && isFocused) {
-      selectionRef.current = state.selection;
-      textarea.setSelectionRange(state.selection.start, state.selection.end);
+    if (textarea && isFocused && state.selection) {
+      const { start, end } = state.selection;
+      // 只在选区真正不同时才设置
+      if (textarea.selectionStart !== start || textarea.selectionEnd !== end) {
+        textarea.setSelectionRange(start, end);
+      }
     }
   }, [state.selection, isFocused]);
 
@@ -91,7 +96,6 @@ export const EditArea: React.FC = () => {
         ref={textareaRef}
         value={state.content}
         onChange={handleChange}
-        onSelect={handleSelect}
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="w-full h-full p-4 resize-none"
