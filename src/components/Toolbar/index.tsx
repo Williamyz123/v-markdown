@@ -9,7 +9,14 @@ interface ToolbarProps {
 
 export const Toolbar: React.FC<ToolbarProps> = ({ children }) => {
   const { getPluginExtensions } = usePlugins();
-  const { theme, setTheme, themeOptions, codeTheme, setCodeTheme, codeThemeOptions } = useStyles();
+  const {
+    theme,
+    setTheme,
+    themeOptions,
+    codeTheme,
+    setCodeTheme,
+    codeThemeOptions
+  } = useStyles();
 
   const toolbarItems = React.useMemo(() => {
     return getPluginExtensions('renderToolbarItems');
