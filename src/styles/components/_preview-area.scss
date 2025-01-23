@@ -3,6 +3,7 @@
 .preview-area {
   padding: 1rem;
   overflow-y: auto;
+  font-size: 0.5rem;
 
   @each $theme, $colors in $themes {
     [data-theme='#{$theme}'] & {
@@ -15,19 +16,19 @@
     margin: 1rem 0;
     padding: 1rem;
     border-radius: 4px;
-    // 移除横向滚动，添加自动换行
     white-space: pre-wrap;
     word-wrap: break-word;
     word-break: break-all;
 
     code {
       font-family: $font-family-code;
+      line-height: 1.5;
     }
 
     // Github 主题
     &[data-code-theme='github'] {
-      background-color: map-get(map-get($code-themes, 'github'), 'bg');
-      color: map-get(map-get($code-themes, 'github'), 'text');
+      background-color: #f6f8fa;
+      color: #24292e;
 
       .token {
         &.keyword { color: #d73a49; }
@@ -38,13 +39,14 @@
         &.operator { color: #d73a49; }
         &.class-name { color: #6f42c1; }
         &.builtin { color: #005cc5; }
+        &.text { color: #24292e; }
       }
     }
 
     // Monokai 主题
     &[data-code-theme='monokai'] {
-      background-color: map-get(map-get($code-themes, 'monokai'), 'bg');
-      color: map-get(map-get($code-themes, 'monokai'), 'text');
+      background-color: #272822;
+      color: #f8f8f2;
 
       .token {
         &.keyword { color: #f92672; }
@@ -55,6 +57,7 @@
         &.operator { color: #f92672; }
         &.class-name { color: #a6e22e; }
         &.builtin { color: #66d9ef; }
+        &.text { color: #f8f8f2; }
       }
     }
   }

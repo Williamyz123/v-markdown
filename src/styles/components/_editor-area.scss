@@ -11,6 +11,7 @@
     resize: none;
     outline: none;
     font-family: monospace;
+    font-size: 0.5rem;
 
     @each $theme, $colors in $themes {
       [data-theme='#{$theme}'] & {

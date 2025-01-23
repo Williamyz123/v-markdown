@@ -175,9 +175,21 @@ const parseCodeBlock = (content: string): CodeBlock[] => {
   let match;
 
   while ((match = codeBlockRegex.exec(content)) !== null) {
-    const language = match[1] || 'plaintext';
+    let language = match[1].toLowerCase() || 'plaintext';
     const code = match[2].trim();
-    const tokens = tokenizeCode(code, language);
+
+    // 根据语言选择不同的token生成函数
+    let tokens;
+    if (language === 'javascript' || language === 'js') {
+      language = 'javascript';
+      tokens = mockJavaScriptTokens(code);
+    } else if (language === 'python' || language === 'py') {
+      language = 'python';
+      tokens = mockPythonTokens(code);
+    } else {
+      language = 'plaintext';
+      tokens = plainTextTokens(code);
+    }
 
     codeBlocks.push({
       id: generateUniqueId(),
@@ -191,36 +203,6 @@ const parseCodeBlock = (content: string): CodeBlock[] => {
   }
 
   return codeBlocks;
-};
-
-// 将代码块转换为HTML的函数
-const codeBlockToHtml = (block: CodeBlock): string => {
-  let html = `<pre data-code-theme="github"><code class="language-${block.language}" data-code-block-id="${block.id}">`;
-
-  let currentLineHtml = '';
-
-  block.tokens.forEach(token => {
-    if (token.text === '\n') {
-      html += currentLineHtml + '\n';
-      currentLineHtml = '';
-      return;
-    }
-
-    // 只对非空白字符添加token包装
-    if (token.text.trim()) {
-      currentLineHtml += `<span class="token ${token.type}">${token.text}</span>`;
-    } else {
-      currentLineHtml += token.text;
-    }
-  });
-
-  // 添加最后一行
-  if (currentLineHtml) {
-    html += currentLineHtml;
-  }
-
-  html += '</code></pre>';
-  return html;
 };
 
 export class MockMarkdownParser implements IMarkdownParser {
@@ -346,4 +328,212 @@ export const getParserInstance = (): IMarkdownParser => {
     parserInstance = new MockMarkdownParser();
   }
   return parserInstance;
+};
+
+const mockJavaScriptTokens = (code: string): Token[] => {
+  const keywords = ['function', 'const', 'let', 'var', 'if', 'else', 'return', 'class', 'new', 'this', 'async', 'await'];
+  const lines = code.split('\n');
+  let position = 0;
+  const tokens: Token[] = [];
+
+  lines.forEach(line => {
+    // 处理注释
+    if (line.trim().startsWith('//')) {
+      tokens.push({
+        type: 'comment',
+        text: line,
+        position: {
+          start: position,
+          end: position + line.length
+        }
+      });
+      tokens.push({
+        type: 'text',
+        text: '\n',
+        position: {
+          start: position + line.length,
+          end: position + line.length + 1
+        }
+      });
+      position += line.length + 1;
+      return;
+    }
+
+    // 使用简单的空格分割
+    const words = line.split(/(\s+|[.,(){}[\]=+\-*/<>!&|;:'"`])/);
+    words.forEach(word => {
+      if (!word) return;
+
+      let type = 'text';
+      if (keywords.includes(word)) {
+        type = 'keyword';
+      } else if (word.match(/^["'`].*["'`]$/)) {
+        type = 'string';
+      } else if (word.match(/^\d+$/)) {
+        type = 'number';
+      } else if (word.match(/[.,(){}[\]=+\-*/<>!&|;]/)) {
+        type = 'operator';
+      }
+
+      tokens.push({
+        type,
+        text: word,
+        position: {
+          start: position,
+          end: position + word.length
+        }
+      });
+      position += word.length;
+    });
+
+    // 添加换行符
+    tokens.push({
+      type: 'text',
+      text: '\n',
+      position: {
+        start: position,
+        end: position + 1
+      }
+    });
+    position += 1;
+  });
+
+  return tokens;
+};
+
+const mockPythonTokens = (code: string): Token[] => {
+  const keywords = ['def', 'class', 'return', 'print', 'import', 'from', 'async', 'await', 'with', 'as', 'lambda'];
+  const lines = code.split('\n');
+  let position = 0;
+  const tokens: Token[] = [];
+
+  lines.forEach(line => {
+    // 处理注释
+    if (line.trim().startsWith('#')) {
+      tokens.push({
+        type: 'comment',
+        text: line,
+        position: {
+          start: position,
+          end: position + line.length
+        }
+      });
+      tokens.push({
+        type: 'text',
+        text: '\n',
+        position: {
+          start: position + line.length,
+          end: position + line.length + 1
+        }
+      });
+      position += line.length + 1;
+      return;
+    }
+
+    const words = line.split(/(\s+|[.,(){}[\]=+\-*/<>!&|;:'"])/);
+    words.forEach(word => {
+      if (!word) return;
+
+      let type = 'text';
+      if (keywords.includes(word)) {
+        type = 'keyword';
+      } else if (word.match(/^["'].*["']$/)) {
+        type = 'string';
+      } else if (word.match(/^\d+$/)) {
+        type = 'number';
+      } else if (word.match(/[.,(){}[\]=+\-*/<>!&|;]/)) {
+        type = 'operator';
+      }
+
+      tokens.push({
+        type,
+        text: word,
+        position: {
+          start: position,
+          end: position + word.length
+        }
+      });
+      position += word.length;
+    });
+
+    tokens.push({
+      type: 'text',
+      text: '\n',
+      position: {
+        start: position,
+        end: position + 1
+      }
+    });
+    position += 1;
+  });
+
+  return tokens;
+};
+
+const plainTextTokens = (code: string): Token[] => {
+  const lines = code.split('\n');
+  let position = 0;
+  const tokens: Token[] = [];
+
+  lines.forEach(line => {
+    tokens.push({
+      type: 'text',
+      text: line,
+      position: {
+        start: position,
+        end: position + line.length
+      }
+    });
+    tokens.push({
+      type: 'text',
+      text: '\n',
+      position: {
+        start: position + line.length,
+        end: position + line.length + 1
+      }
+    });
+    position += line.length + 1;
+  });
+
+  return tokens;
+};
+
+// 添加到 mockParser.ts 文件中，将代码块转换为 HTML 的函数
+const codeBlockToHtml = (block: CodeBlock): string => {
+  let html = `<pre data-code-theme="github"><code class="language-${block.language}" data-code-block-id="${block.id}">`;
+
+  let currentLineHtml = '';
+
+  block.tokens.forEach(token => {
+    if (token.text === '\n') {
+      html += currentLineHtml + '\n';
+      currentLineHtml = '';
+      return;
+    }
+
+    // 只对非空白字符添加 token 包装
+    if (token.text.trim()) {
+      currentLineHtml += `<span class="token ${token.type}">${escapeHtml(token.text)}</span>`;
+    } else {
+      currentLineHtml += token.text;
+    }
+  });
+
+  // 添加最后一行
+  if (currentLineHtml) {
+    html += currentLineHtml;
+  }
+
+  html += '</code></pre>';
+  return html;
+};
+
+// 添加 HTML 转义函数，用于安全地显示代码
+const escapeHtml = (text: string): string => {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 };
