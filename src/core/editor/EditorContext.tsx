@@ -1,5 +1,5 @@
 // src/core/editor/EditorContext.tsx
-import React, { createContext, useContext, useReducer, useMemo, useCallback } from 'react';
+import React, {createContext, useContext, useReducer, useMemo, useCallback, useEffect} from 'react';
 import { getParserInstance } from '../parser/mockParser';
 import type {
   EditorState,
@@ -7,9 +7,33 @@ import type {
   ContentChange
 } from "@/types/editor";
 
+// 本地存储的键名
+const STORAGE_KEY = 'markdown_editor_content';
+const AUTOSAVE_DELAY = 1000; // 自动保存延迟（毫秒）
+
+// 从本地存储加载内容
+const loadFromStorage = (): string => {
+  try {
+    const savedContent = localStorage.getItem(STORAGE_KEY);
+    return savedContent || '';
+  } catch (error) {
+    console.error('Failed to load content from localStorage:', error);
+    return '';
+  }
+};
+
+// 保存内容到本地存储
+const saveToStorage = (content: string) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, content);
+  } catch (error) {
+    console.error('Failed to save content to localStorage:', error);
+  }
+};
+
 // 编辑器初始状态配置
 const initialEditorState: EditorState = {
-  content: '',                    // 编辑器内容
+  content: loadFromStorage(), // 从本地存储加载初始内容
   selection: { start: 0, end: 0 }, // 当前选区位置
   parseResult: {                  // 初始解析结果
     html: '',
@@ -131,7 +155,35 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // 使用 useReducer 管理编辑器状态
   const [state, dispatch] = useReducer(editorReducer, initialEditorState);
 
-  // 处理内容更新的函数
+  // 使用防抖进行自动保存
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveToStorage(state.content);
+      console.log('Content auto-saved to localStorage');
+    }, AUTOSAVE_DELAY);
+
+    return () => clearTimeout(timeoutId);
+  }, [state.content]);
+
+  // 初始化时解析已保存的内容
+  useEffect(() => {
+    const initializeContent = async () => {
+      if (state.content) {
+        try {
+          const parseResult = await parser.parse(state.content, state.options);
+          dispatch({
+            type: 'UPDATE_CONTENT',
+            payload: { content: state.content, parseResult }
+          });
+        } catch (error) {
+          console.error('Failed to parse initial content:', error);
+        }
+      }
+    };
+
+    initializeContent();
+  }, []);
+
   const handleContentUpdate = useCallback(async (
     content: string,
     changes: ContentChange[]
@@ -150,15 +202,10 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         type: 'UPDATE_CONTENT',
         payload: { content, parseResult }
       });
-      console.log('编辑器状态已更新');
-
-      // 强制更新预览区域
-      parseResult && console.log('新的 HTML:', parseResult.html);
-
     } catch (error) {
       console.error('解析错误:', error);
     }
-  }, [parser, state.options, dispatch]); // 添加 dispatch 作为依赖
+  }, [parser, state.options]);
 
   // 创建 Context 值（使用 useMemo 优化性能）
   const value = useMemo(() => ({
