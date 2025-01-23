@@ -1,11 +1,13 @@
 // src/core/editor/EditorContext.tsx
-import React, {createContext, useContext, useReducer, useMemo, useCallback, useEffect} from 'react';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useRef } from 'react';
 import { getParserInstance } from '../parser/mockParser';
 import type {
   EditorState,
+  EditorAction,
   ParseResult,
   ContentChange
 } from "@/types/editor";
+import type { EditorAPI } from "@/types/plugin";
 
 // 本地存储的键名
 const STORAGE_KEY = 'markdown_editor_content';
@@ -33,9 +35,9 @@ const saveToStorage = (content: string) => {
 
 // 编辑器初始状态配置
 const initialEditorState: EditorState = {
-  content: loadFromStorage(), // 从本地存储加载初始内容
-  selection: { start: 0, end: 0 }, // 当前选区位置
-  parseResult: {                  // 初始解析结果
+  content: loadFromStorage(),
+  selection: { start: 0, end: 0 },
+  parseResult: {
     html: '',
     codeBlocks: [],
     meta: {
@@ -43,11 +45,11 @@ const initialEditorState: EditorState = {
       statistics: { codeBlocks: 0, images: 0, links: 0, tables: 0 }
     }
   },
-  history: {                      // 历史记录
-    past: [],                     // 过去的状态
-    future: []                    // 未来的状态（用于重做）
+  history: {
+    past: [],
+    future: []
   },
-  options: {                      // 编辑器功能配置
+  options: {
     features: {
       basic: {
         headings: true,
@@ -61,37 +63,27 @@ const initialEditorState: EditorState = {
   }
 };
 
-// 定义编辑器操作的类型
-type EditorAction =
-  | { type: 'UPDATE_CONTENT'; payload: { content: string; parseResult: ParseResult } }  // 更新内容
-  | { type: 'UPDATE_SELECTION'; payload: { start: number; end: number } }              // 更新选区
-  | { type: 'UNDO' }  // 撤销
-  | { type: 'REDO' }; // 重做
-
-// 编辑器状态的 reducer 函数：处理各种编辑器操作
+// 编辑器状态的 reducer 函数
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
     case 'UPDATE_CONTENT': {
-      // 更新内容时，保存当前状态到历史记录，并更新内容和解析结果
       const { content, parseResult } = action.payload;
-      const past = [...state.history.past, { content: state.content, parseResult: state.parseResult }];
+      const past = [...state.history.past, {
+        content: state.content,
+        parseResult: state.parseResult
+      }];
 
-      // 保持现有的选区状态
-      const newState = {
+      return {
         ...state,
         content,
         parseResult,
         history: {
           past: past.slice(-50), // 限制历史记录最多保存50条
-          future: []            // 清空重做记录
+          future: []
         }
       };
-
-      console.log('Reducer更新状态，新的选区:', newState.selection);
-      return newState;
     }
     case 'UPDATE_SELECTION':
-      // 更新选区位置
       return {
         ...state,
         selection: {
@@ -100,13 +92,12 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
         }
       };
     case 'UNDO': {
-      // 撤销操作：恢复到上一个状态
       const previous = state.history.past[state.history.past.length - 1];
-      if (!previous) return state; // 如果没有历史记录则不变
+      if (!previous) return state;
 
-      const past = state.history.past.slice(0, -1);  // 移除最后一条历史记录
+      const past = state.history.past.slice(0, -1);
       const future = [
-        { content: state.content, parseResult: state.parseResult }, // 保存当前状态到重做列表
+        { content: state.content, parseResult: state.parseResult },
         ...state.history.future
       ];
 
@@ -118,14 +109,13 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       };
     }
     case 'REDO': {
-      // 重做操作：恢复到下一个状态
       const next = state.history.future[0];
-      if (!next) return state; // 如果没有重做记录则不变
+      if (!next) return state;
 
-      const future = state.history.future.slice(1);  // 移除第一条重做记录
+      const future = state.history.future.slice(1);
       const past = [
         ...state.history.past,
-        { content: state.content, parseResult: state.parseResult } // 保存当前状态到历史记录
+        { content: state.content, parseResult: state.parseResult }
       ];
 
       return {
@@ -140,22 +130,49 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
   }
 }
 
-// 创建编辑器上下文
-const EditorContext = createContext<{
+// EditorContext 类型定义
+type EditorContextType = {
   state: EditorState;
   dispatch: React.Dispatch<EditorAction>;
   handleContentUpdate: (content: string, changes: ContentChange[]) => Promise<void>;
-} | null>(null);
+  editorAPI: EditorAPI['editor'];
+};
+
+// 创建编辑器上下文
+const EditorContext = createContext<EditorContextType | null>(null);
 
 // 编辑器上下文提供者组件
 export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 初始化解析器实例（使用 useMemo 确保只创建一次）
+  // 初始化解析器实例
   const parser = useMemo(() => getParserInstance(), []);
-
-  // 使用 useReducer 管理编辑器状态
   const [state, dispatch] = useReducer(editorReducer, initialEditorState);
 
-  // 使用防抖进行自动保存
+  // 使用 ref 存储最新的状态
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
+  // 内容更新处理
+  const handleContentUpdate = useCallback(async (
+    content: string,
+    changes: ContentChange[]
+  ) => {
+    try {
+      const parseResult = changes.length > 0
+        ? parser.parseIncremental(content, changes, state.options)
+        : parser.parse(content, state.options);
+
+      dispatch({
+        type: 'UPDATE_CONTENT',
+        payload: { content, parseResult }
+      });
+    } catch (error) {
+      console.error('解析错误:', error);
+    }
+  }, [parser, state.options]);
+
+  // 自动保存功能
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       saveToStorage(state.content);
@@ -184,37 +201,25 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     initializeContent();
   }, []);
 
-  const handleContentUpdate = useCallback(async (
-    content: string,
-    changes: ContentChange[]
-  ) => {
-    try {
-      console.log('handleContentUpdate 被调用，新内容:', content);
+  // 创建编辑器API
+  const editorAPI = useMemo(() => ({
+    getContent: () => stateRef.current.content,
+    setContent: (content: string) => handleContentUpdate(content, []),
+    getSelection: () => stateRef.current.selection,
+    setSelection: (start: number, end: number) =>
+      dispatch({ type: 'UPDATE_SELECTION', payload: { start, end } }),
+    getState: () => stateRef.current,
+    executeAction: (action: EditorAction) => dispatch(action)
+  }), [handleContentUpdate]);
 
-      // 根据是否有变更内容决定使用增量解析还是完整解析
-      const parseResult = changes.length > 0
-        ? parser.parseIncremental(content, changes, state.options)
-        : parser.parse(content, state.options);
-
-      console.log('开始更新编辑器状态');
-      // 更新状态
-      dispatch({
-        type: 'UPDATE_CONTENT',
-        payload: { content, parseResult }
-      });
-    } catch (error) {
-      console.error('解析错误:', error);
-    }
-  }, [parser, state.options]);
-
-  // 创建 Context 值（使用 useMemo 优化性能）
+  // 创建 Context 值
   const value = useMemo(() => ({
     state,
     dispatch,
-    handleContentUpdate
-  }), [state, handleContentUpdate]);
+    handleContentUpdate,
+    editorAPI
+  }), [state, handleContentUpdate, editorAPI]);
 
-  // 提供上下文给子组件
   return (
     <EditorContext.Provider value={value}>
       {children}

@@ -1,5 +1,11 @@
 // src/types/editor.ts
 
+export type EditorAction =
+  | { type: 'UPDATE_CONTENT'; payload: { content: string; parseResult: ParseResult } }
+  | { type: 'UPDATE_SELECTION'; payload: { start: number; end: number } }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
+
 // 编辑器状态接口
 export interface EditorState {
   content: string;

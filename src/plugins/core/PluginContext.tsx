@@ -4,6 +4,7 @@ import { PluginManager } from './PluginManager';
 import {EditorAPI, Plugin, PluginContext as IPluginContext} from '@/types/plugin';
 import { useEditor } from '@/core/editor/EditorContext';
 import { useCommands } from '@/core/commands/CommandSystem';
+import {EditorAction} from "@/types/editor";
 
 // 创建插件系统的 Context
 const PluginContext = createContext<IPluginContext | null>(null);
@@ -14,7 +15,7 @@ export const PluginProvider: React.FC<{ children: React.ReactNode }> = ({
                                                                           children
                                                                         }) => {
   const editor = useEditor();
-  const { registerCommand, executeCommand } = useCommands();
+  const { registerCommand, executeCommand, isEnabled } = useCommands();
   const [pluginCount, setPluginCount] = useState(0);
 
   // 创建一个 ref 来存储最新的编辑器状态
@@ -29,7 +30,8 @@ export const PluginProvider: React.FC<{ children: React.ReactNode }> = ({
   const editorAPI = useMemo<EditorAPI>(() => ({
     commands: {
       registerCommand,
-      executeCommand
+      executeCommand,
+      isEnabled
     },
     editor: {
       getContent: () => {
@@ -51,6 +53,15 @@ export const PluginProvider: React.FC<{ children: React.ReactNode }> = ({
       setSelection: (start, end) => {
         console.log('setSelection 被调用，新选区:', { start, end });
         editor.dispatch({ type: 'UPDATE_SELECTION', payload: { start, end } });
+      },
+      // 新增 getState 方法
+      getState: () => {
+        return editorStateRef.current;
+      },
+      // 新增 executeAction 方法
+      executeAction: (action: EditorAction) => {
+        console.log('executeAction 被调用，动作:', action);
+        editor.dispatch(action);
       }
     },
     theme: {
