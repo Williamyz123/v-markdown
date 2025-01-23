@@ -100,6 +100,7 @@ export const EditArea: React.FC = () => {
         onBlur={handleBlur}
         className="resize-none"
         placeholder="在这里输入 Markdown 文本..."
+        spellCheck="false"  // 添加这一行来禁用拼写检查
       />
     </div>
   );
