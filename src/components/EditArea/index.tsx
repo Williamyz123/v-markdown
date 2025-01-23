@@ -16,6 +16,18 @@ export const EditArea: React.FC = () => {
     handleContentUpdate(e.target.value, []);
   };
 
+  // 处理滚动事件
+  const handleScroll = useCallback((e: React.UIEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget;
+    const scrollPercentage = textarea.scrollTop / (textarea.scrollHeight - textarea.clientHeight);
+
+    // 触发自定义事件，传递滚动百分比
+    const scrollEvent = new CustomEvent('editorScroll', {
+      detail: { percentage: scrollPercentage }
+    });
+    window.dispatchEvent(scrollEvent);
+  }, []);
+
   // 使用 useCallback 记忆化 handleSelect 函数
   const handleSelect = useCallback(() => {
     const textarea = textareaRef.current;
@@ -96,6 +108,7 @@ export const EditArea: React.FC = () => {
         ref={textareaRef}
         value={state.content}
         onChange={handleChange}
+        onScroll={handleScroll} // 添加滚动事件处理
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="resize-none"

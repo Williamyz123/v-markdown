@@ -18,6 +18,26 @@ export const PreviewArea: React.FC = () => {
     }
   }, [codeTheme, state.parseResult?.html]);
 
+  // 监听编辑区域的滚动事件
+  useEffect(() => {
+    const handleEditorScroll = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const percentage = customEvent.detail.percentage;
+
+      if (previewRef.current) {
+        const previewElement = previewRef.current;
+        const scrollHeight = previewElement.scrollHeight - previewElement.clientHeight;
+        previewElement.scrollTop = scrollHeight * percentage;
+      }
+    };
+
+    window.addEventListener('editorScroll', handleEditorScroll);
+
+    return () => {
+      window.removeEventListener('editorScroll', handleEditorScroll);
+    };
+  }, []);
+
   return (
     <div
       ref={previewRef}
