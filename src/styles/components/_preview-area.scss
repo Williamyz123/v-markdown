@@ -1,4 +1,5 @@
 // src/styles/components/_preview-area.scss
+
 .preview-area {
   padding: 1rem;
   overflow-y: auto;
@@ -14,20 +15,46 @@
     margin: 1rem 0;
     padding: 1rem;
     border-radius: 4px;
-    overflow-x: auto;
+    // 移除横向滚动，添加自动换行
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
 
-    @each $theme, $colors in $code-themes {
-      [data-code-theme='#{$theme}'] & {
-        background-color: map-get($colors, 'bg');
-        color: map-get($colors, 'text');
+    code {
+      font-family: $font-family-code;
+    }
 
-        .keyword {
-          color: map-get($colors, 'keyword');
-        }
+    // Github 主题
+    &[data-code-theme='github'] {
+      background-color: map-get(map-get($code-themes, 'github'), 'bg');
+      color: map-get(map-get($code-themes, 'github'), 'text');
 
-        .comment {
-          color: map-get($colors, 'comment');
-        }
+      .token {
+        &.keyword { color: #d73a49; }
+        &.string { color: #032f62; }
+        &.comment { color: #6a737d; }
+        &.function { color: #6f42c1; }
+        &.number { color: #005cc5; }
+        &.operator { color: #d73a49; }
+        &.class-name { color: #6f42c1; }
+        &.builtin { color: #005cc5; }
+      }
+    }
+
+    // Monokai 主题
+    &[data-code-theme='monokai'] {
+      background-color: map-get(map-get($code-themes, 'monokai'), 'bg');
+      color: map-get(map-get($code-themes, 'monokai'), 'text');
+
+      .token {
+        &.keyword { color: #f92672; }
+        &.string { color: #e6db74; }
+        &.comment { color: #75715e; }
+        &.function { color: #a6e22e; }
+        &.number { color: #ae81ff; }
+        &.operator { color: #f92672; }
+        &.class-name { color: #a6e22e; }
+        &.builtin { color: #66d9ef; }
       }
     }
   }
