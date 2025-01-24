@@ -37,21 +37,17 @@ export const PluginProvider: React.FC<{ children: React.ReactNode }> = ({
       getContent: () => {
         // 使用 ref 获取最新的内容
         const content = editorStateRef.current.content;
-        console.log('getContent 被调用，返回内容:', content);
         return content;
       },
       setContent: (content) => {
-        console.log('setContent 被调用，新内容:', content);
         return editor.handleContentUpdate(content, []);
       },
       getSelection: () => {
         // 使用 ref 获取最新的选区
         const selection = editorStateRef.current.selection;
-        console.log('getSelection 被调用，当前选区:', selection);
         return selection;
       },
       setSelection: (start, end) => {
-        console.log('setSelection 被调用，新选区:', { start, end });
         editor.dispatch({ type: 'UPDATE_SELECTION', payload: { start, end } });
       },
       // 新增 getState 方法

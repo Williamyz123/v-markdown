@@ -1,8 +1,6 @@
 // src/plugins/base/CorePlugin.tsx
 import type { Plugin, EditorAPI } from '@/types/plugin';
 import type { Command } from '@/core/commands/CommandSystem';
-import { ToolbarButton } from '@/components/Toolbar/ToolbarButton';
-import { UndoIcon, RedoIcon, CopyIcon } from '@/components/Toolbar/icons';
 
 export const createCorePlugin = (): Plugin => {
   const plugin: Plugin = {
@@ -13,12 +11,14 @@ export const createCorePlugin = (): Plugin => {
     api: undefined,
 
     initialize: (api: EditorAPI) => {
+      console.log('Initializing CorePlugin');
       plugin.api = api;
 
       // 注册撤销命令
       const undoCommand: Command = {
         id: 'undo',
         execute: () => {
+          console.log('Executing undo command');
           api.editor.executeAction({ type: 'UNDO' });
         },
         isEnabled: () => {
@@ -31,6 +31,7 @@ export const createCorePlugin = (): Plugin => {
       const redoCommand: Command = {
         id: 'redo',
         execute: () => {
+          console.log('Executing redo command');
           api.editor.executeAction({ type: 'REDO' });
         },
         isEnabled: () => {
@@ -43,6 +44,7 @@ export const createCorePlugin = (): Plugin => {
       const copyCommand: Command = {
         id: 'copy',
         execute: () => {
+          console.log('Executing copy command');
           const content = api.editor.getContent();
           const selection = api.editor.getSelection();
           if (selection.start !== selection.end) {
@@ -59,37 +61,9 @@ export const createCorePlugin = (): Plugin => {
 
       // 注册所有核心命令
       [undoCommand, redoCommand, copyCommand].forEach(command => {
+        console.log('Registering command:', command.id);
         api.commands.registerCommand(command);
       });
-    },
-
-    // 提供工具栏按钮
-    renderToolbarItems: () => {
-      if (!plugin.api) return [];
-
-      const createButton = (commandId: string, icon: React.ReactNode, title: string) => {
-        const handleClick = () => {
-          plugin.api!.commands.executeCommand(commandId);
-        };
-
-        const isEnabled = plugin.api!.commands.isEnabled(commandId);
-
-        return (
-          <ToolbarButton
-            key={commandId}
-            icon={icon}
-            onClick={handleClick}
-            title={title}
-            disabled={!isEnabled}
-          />
-        );
-      };
-
-      return [
-        createButton('undo', <UndoIcon />, '撤销 (Ctrl+Z)'),
-        createButton('redo', <RedoIcon />, '重做 (Ctrl+Y)'),
-        createButton('copy', <CopyIcon />, '复制 (Ctrl+C)')
-      ];
     }
   };
 

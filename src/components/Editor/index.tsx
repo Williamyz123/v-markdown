@@ -5,6 +5,7 @@ import { createTextFormattingPlugin } from '@/plugins/base/TextFormattingPlugin'
 import { Toolbar } from '../Toolbar';
 import { EditArea } from '../EditArea';
 import { PreviewArea } from '../PreviewArea';
+import {createCorePlugin} from "@/plugins/base/CorePlugin";
 
 const Editor: React.FC = () => {
   const { registerPlugin } = usePlugins();
@@ -12,13 +13,15 @@ const Editor: React.FC = () => {
 
   // 初始化插件
   useEffect(() => {
-    if (!pluginRegistered.current) {
-      console.log('开始注册文本格式化插件');
-      const plugin = createTextFormattingPlugin();
-      registerPlugin(plugin);
-      console.log('文本格式化插件注册完成');
-      pluginRegistered.current = true;
-    }
+    // 注册核心插件
+    const corePlugin = createCorePlugin();
+    registerPlugin(corePlugin);
+    console.log('Core plugin registered with ID:', corePlugin.id);
+
+    // 注册文本格式化插件
+    const textFormattingPlugin = createTextFormattingPlugin();
+    registerPlugin(textFormattingPlugin);
+    console.log('Text formatting plugin registered with ID:', textFormattingPlugin.id);
   }, [registerPlugin]);
 
   return (

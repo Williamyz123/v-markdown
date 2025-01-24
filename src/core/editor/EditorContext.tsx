@@ -5,7 +5,7 @@ import type {
   EditorState,
   EditorAction,
   ParseResult,
-  ContentChange
+  ContentChange, HistoryItem
 } from "@/types/editor";
 import type { EditorAPI } from "@/types/plugin";
 
@@ -65,13 +65,23 @@ const initialEditorState: EditorState = {
 
 // 编辑器状态的 reducer 函数
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  // 创建一个函数来打印历史记录的变化
+  const logHistoryChange = (past: HistoryItem[], future: HistoryItem[], type: string) => {
+    console.log(`History ${type} changed:`);
+    console.log('Past:', past);
+    console.log('Future:', future);
+  };
+
   switch (action.type) {
     case 'UPDATE_CONTENT': {
+      console.log("触发contentUpdate")
       const { content, parseResult } = action.payload;
       const past = [...state.history.past, {
         content: state.content,
         parseResult: state.parseResult
       }];
+      // 打印历史记录变化
+      logHistoryChange(past, state.history.future, 'changed');
 
       return {
         ...state,
@@ -92,6 +102,7 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
         }
       };
     case 'UNDO': {
+      console.log("触发undo")
       const previous = state.history.past[state.history.past.length - 1];
       if (!previous) return state;
 
@@ -100,6 +111,8 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
         { content: state.content, parseResult: state.parseResult },
         ...state.history.future
       ];
+      // 打印历史记录变化
+      logHistoryChange(past, state.history.future, 'changed');
 
       return {
         ...state,
@@ -117,6 +130,8 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
         ...state.history.past,
         { content: state.content, parseResult: state.parseResult }
       ];
+      // 打印历史记录变化
+      logHistoryChange(past, state.history.future, 'changed');
 
       return {
         ...state,

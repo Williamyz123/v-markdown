@@ -38,7 +38,6 @@ export const EditArea: React.FC = () => {
       // 只在选区真正改变时才更新
       if (selectionRef.current.start !== start || selectionRef.current.end !== end) {
         selectionRef.current = { start, end };
-        console.log('Selection changed:', { start, end });
 
         dispatch({
           type: 'UPDATE_SELECTION',
