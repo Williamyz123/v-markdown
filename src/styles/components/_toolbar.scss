@@ -23,9 +23,27 @@
       width: 1.5rem;
       height: 1.5rem;
       //padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.2s ease;
+
+      svg {
+        width: 16px;
+        height: 16px;
+        @each $theme, $colors in $themes {
+          [data-theme='#{$theme}'] & {
+            fill: map-get($colors, 'icon');
+          }
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
       @each $theme, $colors in $themes {
         [data-theme='#{$theme}'] & {

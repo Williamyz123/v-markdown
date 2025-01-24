@@ -2,6 +2,8 @@
 import React from 'react';
 import type { Plugin, EditorAPI } from '@/types/plugin';
 import type { Command } from '@/core/commands/CommandSystem';
+import { ToolbarButton } from '@/components/Toolbar/ToolbarButton';
+import { BoldIcon, ItalicIcon, StrikethroughIcon } from '@/components/Toolbar/icons';
 
 // 工具栏按钮的属性接口
 interface ToolbarButtonProps {
@@ -11,27 +13,6 @@ interface ToolbarButtonProps {
   isActive?: boolean;
 }
 
-// 工具栏按钮组件
-const ToolbarButton: React.FC<ToolbarButtonProps> = ({
-                                                       icon,
-                                                       title,
-                                                       onClick,
-                                                       isActive
-                                                     }) => (
-  <button
-    className={`toolbar-button ${isActive ? 'active' : ''}`}
-    onMouseDown={(e) => {
-      e.preventDefault();
-    }}
-    onClick={(e) => {
-      e.preventDefault();
-      onClick();
-    }}
-    title={title}
-  >
-    <span className="button-content">{icon}</span>
-  </button>
-);
 
 // 创建文本格式化插件的工厂函数
 export const createTextFormattingPlugin = (): Plugin => {
@@ -133,17 +114,8 @@ export const createTextFormattingPlugin = (): Plugin => {
         return [];
       }
 
-      const createButton = (
-        commandId: string,
-        icon: string,
-        title: string,
-        shortcut: string
-      ) => {
+      const createButton = (commandId: string, icon: React.ReactNode, title: string, shortcut: string) => {
         const handleClick = () => {
-          const selection = plugin.api!.editor.getSelection();
-          console.log('点击按钮，当前选区:', selection);
-          console.log('当前内容:', plugin.api!.editor.getContent());
-
           plugin.api!.commands.executeCommand(commandId);
         };
 
@@ -153,14 +125,15 @@ export const createTextFormattingPlugin = (): Plugin => {
             icon={icon}
             title={`${title} (${shortcut})`}
             onClick={handleClick}
+            isActive={false}
           />
         );
       };
 
       return [
-        createButton('bold', 'B', '加粗', 'Ctrl+B'),
-        createButton('italic', 'I', '斜体', 'Ctrl+I'),
-        createButton('strikethrough', 'S', '删除线', 'Ctrl+D')
+        createButton('bold', <BoldIcon />, '加粗', 'Ctrl+B'),
+        createButton('italic', <ItalicIcon />, '斜体', 'Ctrl+I'),
+        createButton('strikethrough', <StrikethroughIcon />, '删除线', 'Ctrl+D')
       ];
     },
 

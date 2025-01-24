@@ -1,6 +1,8 @@
 // src/plugins/base/CorePlugin.tsx
 import type { Plugin, EditorAPI } from '@/types/plugin';
 import type { Command } from '@/core/commands/CommandSystem';
+import { ToolbarButton } from '@/components/Toolbar/ToolbarButton';
+import { UndoIcon, RedoIcon, CopyIcon } from '@/components/Toolbar/icons';
 
 export const createCorePlugin = (): Plugin => {
   const plugin: Plugin = {
@@ -65,28 +67,28 @@ export const createCorePlugin = (): Plugin => {
     renderToolbarItems: () => {
       if (!plugin.api) return [];
 
-      const createButton = (commandId: string, icon: string, title: string) => {
+      const createButton = (commandId: string, icon: React.ReactNode, title: string) => {
         const handleClick = () => {
           plugin.api!.commands.executeCommand(commandId);
         };
 
+        const isEnabled = plugin.api!.commands.isEnabled(commandId);
+
         return (
-          <button
+          <ToolbarButton
             key={commandId}
-            className="toolbar-button"
+            icon={icon}
             onClick={handleClick}
-            disabled={!plugin.api!.commands.isEnabled(commandId)}
             title={title}
-          >
-            {icon}
-          </button>
+            disabled={!isEnabled}
+          />
         );
       };
 
       return [
-        createButton('undo', '↩', '撤销 (Ctrl+Z)'),
-        createButton('redo', '↪', '重做 (Ctrl+Y)'),
-        createButton('copy', '📋', '复制 (Ctrl+C)')
+        createButton('undo', <UndoIcon />, '撤销 (Ctrl+Z)'),
+        createButton('redo', <RedoIcon />, '重做 (Ctrl+Y)'),
+        createButton('copy', <CopyIcon />, '复制 (Ctrl+C)')
       ];
     }
   };

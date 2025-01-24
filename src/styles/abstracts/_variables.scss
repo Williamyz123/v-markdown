@@ -12,7 +12,8 @@ $themes: (
     'border': #e0e0e0,
     'toolbar-bg': #f5f5f5,
     'editor-bg': #ffffff,
-    'preview-bg': #ffffff
+    'preview-bg': #ffffff,
+    'icon': #666666
   ),
   'dark': (
     'bg': #1e1e1e,
@@ -20,22 +21,35 @@ $themes: (
     'border': #424242,
     'toolbar-bg': #2d2d2d,
     'editor-bg': #1e1e1e,
-    'preview-bg': #1e1e1e
+    'preview-bg': #1e1e1e,
+    'icon': #aaaaaa
   )
 );
 
 // 代码块主题配置
 $code-themes: (
   'github': (
-    'bg': #f6f8fa,
+    'bg': #afafaf,
     'text': #24292e,
     'keyword': #d73a49,
-    'comment': #6a737d
+    'string': #032f62,
+    'comment': #6a737d,
+    'function': #6f42c1,
+    'number': #005cc5,
+    'operator': #d73a49,
+    'class-name': #6f42c1,
+    'builtin': #005cc5
   ),
   'monokai': (
     'bg': #272822,
     'text': #f8f8f2,
     'keyword': #f92672,
-    'comment': #75715e
+    'string': #e6db74,
+    'comment': #75715e,
+    'function': #a6e22e,
+    'number': #ae81ff,
+    'operator': #f92672,
+    'class-name': #a6e22e,
+    'builtin': #66d9ef
   )
 );
