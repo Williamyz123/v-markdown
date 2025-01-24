@@ -1,6 +1,6 @@
 // src/core/editor/EditorContext.tsx
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useRef } from 'react';
-import { getParserInstance } from '../parser/mockParser';
+import {getParserInstance, MockMarkdownParser} from '../parser/mockParser';
 import type {
   EditorState,
   EditorAction,
@@ -144,8 +144,8 @@ const EditorContext = createContext<EditorContextType | null>(null);
 // 编辑器上下文提供者组件
 export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 初始化解析器实例
-  const parser = useMemo(() => getParserInstance(), []);
   const [state, dispatch] = useReducer(editorReducer, initialEditorState);
+  const parser = useMemo(() => getParserInstance(initialEditorState.options), []);
 
   // 使用 ref 存储最新的状态
   const stateRef = useRef(state);
@@ -160,8 +160,8 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   ) => {
     try {
       const parseResult = changes.length > 0
-        ? parser.parseIncremental(content, changes, state.options)
-        : parser.parse(content, state.options);
+        ? parser.parseIncremental(content, changes)
+        : parser.parse(content);
 
       dispatch({
         type: 'UPDATE_CONTENT',
@@ -170,7 +170,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     } catch (error) {
       console.error('解析错误:', error);
     }
-  }, [parser, state.options]);
+  }, [parser]);
 
   // 自动保存功能
   useEffect(() => {

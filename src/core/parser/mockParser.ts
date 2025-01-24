@@ -206,7 +206,13 @@ const parseCodeBlock = (content: string): CodeBlock[] => {
 };
 
 export class MockMarkdownParser implements IMarkdownParser {
-  parse(content: string, options?: ParserOptions): ParseResult {
+  private options: ParserOptions;
+
+  constructor(options: ParserOptions) {
+    this.options = options;
+  }
+
+  parse(content: string): ParseResult {
     // 检测并解析代码块
     const codeBlocks = parseCodeBlock(content);
     let html = content;
@@ -253,11 +259,10 @@ export class MockMarkdownParser implements IMarkdownParser {
 
   parseIncremental(
     content: string,
-    changes: ContentChange[],
-    options?: ParserOptions
+    changes: ContentChange[]
   ): ParseResult {
     // 目前仍然使用完整解析
-    return this.parse(content, options);
+    return this.parse(content);
   }
 
   getTableOfContents(content: string): TocResult {
@@ -322,10 +327,12 @@ export class MockMarkdownParser implements IMarkdownParser {
 }
 
 let parserInstance: IMarkdownParser | null = null;
+let parserOptions: ParserOptions | null = null;
 
-export const getParserInstance = (): IMarkdownParser => {
-  if (!parserInstance) {
-    parserInstance = new MockMarkdownParser();
+export const getParserInstance = (options?: ParserOptions): IMarkdownParser => {
+  if (!parserInstance || options !== parserOptions) {
+    parserOptions = options || parserOptions;
+    parserInstance = new MockMarkdownParser(parserOptions!);
   }
   return parserInstance;
 };
