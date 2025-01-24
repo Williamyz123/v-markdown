@@ -20,7 +20,9 @@
 
     // 工具栏按钮样式
     .toolbar-button {
-      padding: 6px 12px;
+      width: 1.5rem;
+      height: 1.5rem;
+      //padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -52,11 +54,12 @@
 
       select {
         appearance: none; // 移除默认的下拉箭头
-        padding-right: 12px; // 右侧留出空间放置自定义箭头
+        padding: 5px; // 右侧留出空间放置自定义箭头
         border-radius: 4px;
         cursor: pointer;
         min-width: 80px;
         font-size: 14px;
+        text-align: center;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 8px center;
@@ -91,10 +94,6 @@
 
         // 为 select 添加动画效果
         transition: all 0.2s ease;
-
-        &.theme-select {
-          margin-right: 8px;
-        }
 
         &.code-theme-select {
           // 可以为代码主题选择器添加特殊样式

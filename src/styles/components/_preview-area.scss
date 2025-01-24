@@ -13,16 +13,18 @@
 
   // 预览区代码块样式
   pre {
-    margin: 1rem 0;
-    padding: 1rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
     border-radius: 4px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    word-break: break-all;
+
+    white-space: pre;
+    word-wrap: normal;
+    overflow-x: auto;
+    line-height: 1;
+
 
     code {
       font-family: $font-family-code;
-      line-height: 1.5;
     }
 
     // Github 主题
@@ -64,7 +66,6 @@
 
   // 其他 Markdown 样式
   h1, h2, h3 { margin: 1em 0 0.5em; }
-  p { margin-bottom: 1em; line-height: 1.6; }
   ul, ol { margin: 1em 0; padding-left: 2em; }
   blockquote {
     margin: 1em 0;
