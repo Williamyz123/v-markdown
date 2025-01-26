@@ -285,20 +285,18 @@ export const createExportPlugin = (): Plugin => {
       }
 
       return [
-        <div key="export-group" className="toolbar-button-group">
-          <ToolbarButton
-            key="exportHtml"
-            icon={<ExportHTMLIcon />}
-            title="Export as HTML"
-            onClick={() => plugin.api!.commands.executeCommand('exportHtml')}
-          />
-          <ToolbarButton
-            key="exportPdf"
-            icon={<ExportPDFIcon />}
-            title="Export as PDF"
-            onClick={() => plugin.api!.commands.executeCommand('exportPdf')}
-          />
-        </div>
+        <ToolbarButton
+          key="exportHtml"
+          icon={<ExportHTMLIcon />}
+          title="Export as HTML"
+          onClick={() => plugin.api!.commands.executeCommand('exportHtml')}
+        />,
+        <ToolbarButton
+          key="exportPdf"
+          icon={<ExportPDFIcon />}
+          title="Export as PDF"
+          onClick={() => plugin.api!.commands.executeCommand('exportPdf')}
+        />
       ];
     }
   };

@@ -1,7 +1,7 @@
 // src/styles/components/_toolbar.scss
 
 .editor-toolbar {
-  padding: 8px 16px;
+  padding: 5px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -14,8 +14,8 @@
   }
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 0.6rem;
+    height: 0.6rem;
 
   }
 
@@ -40,13 +40,12 @@
   .toolbar-left {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
 
     // 工具栏按钮样式
     .toolbar-button {
-      width: 1.5rem;
-      height: 1.5rem;
-      //padding: 6px 12px;
+      width: 1rem;
+      height: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -91,8 +90,7 @@
         padding: 5px; // 右侧留出空间放置自定义箭头
         border-radius: 4px;
         cursor: pointer;
-        min-width: 80px;
-        font-size: 14px;
+        font-size: 8px;
         text-align: center;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
@@ -146,18 +144,4 @@
   }
 
   @return $string;
-}
-
-.toolbar-button-group {
-  display: flex;
-  gap: 8px;
-  margin-left: 8px;
-  padding-left: 8px;
-  border-left: 1px solid;
-
-  @each $theme, $colors in $themes {
-    [data-theme='#{$theme}'] & {
-      border-left-color: map-get($colors, 'border');
-    }
-  }
 }
