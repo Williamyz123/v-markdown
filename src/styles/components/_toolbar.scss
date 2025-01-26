@@ -13,6 +13,30 @@
     }
   }
 
+  svg {
+    width: 16px;
+    height: 16px;
+
+  }
+
+  svg path{
+    @each $theme, $colors in $themes {
+      [data-theme='#{$theme}'] & {
+        fill: map-get($colors, 'icon');
+        stroke: map-get($colors, 'icon');
+      }
+    }
+  }
+
+  svg circle{
+    @each $theme, $colors in $themes {
+      [data-theme='#{$theme}'] & {
+        fill: map-get($colors, 'icon');
+        stroke: map-get($colors, 'icon');
+      }
+    }
+  }
+
   .toolbar-left {
     display: flex;
     align-items: center;
@@ -30,15 +54,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
 
-      svg {
-        width: 16px;
-        height: 16px;
-        @each $theme, $colors in $themes {
-          [data-theme='#{$theme}'] & {
-            fill: map-get($colors, 'icon');
-          }
-        }
-      }
+
 
       &:disabled {
         opacity: 0.5;
@@ -130,4 +146,18 @@
   }
 
   @return $string;
+}
+
+.toolbar-button-group {
+  display: flex;
+  gap: 8px;
+  margin-left: 8px;
+  padding-left: 8px;
+  border-left: 1px solid;
+
+  @each $theme, $colors in $themes {
+    [data-theme='#{$theme}'] & {
+      border-left-color: map-get($colors, 'border');
+    }
+  }
 }

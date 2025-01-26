@@ -17,11 +17,11 @@ export function useCommands() {
     commandsRef.current.set(command.id, command);
   }, []);
 
-  const executeCommand = useCallback((commandId: string) => {
+  const executeCommand = useCallback(async (commandId: string) => {
     console.log('尝试执行命令:', commandId);
     const command = commandsRef.current.get(commandId);
     if (command?.isEnabled?.() !== false) {
-      command?.execute();
+      await command?.execute();
     }
   }, []);
 

@@ -6,6 +6,7 @@ import { Toolbar } from '../Toolbar';
 import { EditArea } from '../EditArea';
 import { PreviewArea } from '../PreviewArea';
 import {createCorePlugin} from "@/plugins/base/CorePlugin";
+import {createExportPlugin} from "@/plugins/base/ExportPlugin";
 
 const Editor: React.FC = () => {
   const { registerPlugin } = usePlugins();
@@ -22,6 +23,10 @@ const Editor: React.FC = () => {
     const textFormattingPlugin = createTextFormattingPlugin();
     registerPlugin(textFormattingPlugin);
     console.log('Text formatting plugin registered with ID:', textFormattingPlugin.id);
+
+    // 注册导出插件
+    const exportPlugin = createExportPlugin();
+    registerPlugin(exportPlugin);
   }, [registerPlugin]);
 
   return (
