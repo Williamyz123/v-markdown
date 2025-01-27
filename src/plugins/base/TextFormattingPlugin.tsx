@@ -1,9 +1,23 @@
 // src/plugins/base/TextFormattingPlugin.tsx
 import React from 'react';
-import type { Plugin, EditorAPI } from '@/types/plugin';
-import type { Command } from '@/core/commands/CommandSystem';
-import { ToolbarButton } from '@/components/Toolbar/ToolbarButton';
-import { BoldIcon, ItalicIcon, StrikethroughIcon, H1Icon,H2Icon,H3Icon, ListBulletIcon, ListNumberIcon, HorizontalLineIcon, QuoteIcon} from '@/components/Toolbar/icons';
+import type {Plugin, EditorAPI} from '@/types/plugin';
+import type {Command} from '@/core/commands/CommandSystem';
+import {ToolbarButton} from '@/components/Toolbar/ToolbarButton';
+import {
+  BoldIcon,
+  ItalicIcon,
+  StrikethroughIcon,
+  H1Icon,
+  H2Icon,
+  H3Icon,
+  ListBulletIcon,
+  ListNumberIcon,
+  HorizontalLineIcon,
+  QuoteIcon,
+  LinkIcon,
+  TableIcon,
+  PicIcon
+} from '@/components/Toolbar/icons';
 
 // 工具栏按钮的属性接口
 interface ToolbarButtonProps {
@@ -62,7 +76,7 @@ export const createTextFormattingPlugin = (): Plugin => {
           const selected = content.slice(selection.start, selection.end);
           const after = content.slice(selection.end);
 
-          console.log('文本分割结果:', { before, selected, after });
+          console.log('文本分割结果:', {before, selected, after});
 
           const newContent = `${before}${marker}${selected}${marker}${after}`;
           console.log('新内容:', newContent);
@@ -74,7 +88,7 @@ export const createTextFormattingPlugin = (): Plugin => {
           // 计算新的选区位置
           const newStart = selection.start;
           const newEnd = selection.end + (markerLength * 2);
-          console.log('新选区位置:', { newStart, newEnd });
+          console.log('新选区位置:', {newStart, newEnd});
 
           // 更新选区
           api.editor.setSelection(newStart, newEnd);
@@ -255,6 +269,86 @@ export const createTextFormattingPlugin = (): Plugin => {
         isEnabled: () => true
       });
 
+      // 创建链接命令
+      const createLinkCommand = (): Command => ({
+        id: 'link',
+        execute: () => {
+          const content = api.editor.getContent();
+          const selection = api.editor.getSelection();
+          const selectedText = content.slice(selection.start, selection.end);
+
+          // 准备插入的文本
+          const linkText = selectedText || 'link';
+          const template = `[${linkText}](url)`;
+
+          // 计算新内容
+          const before = content.slice(0, selection.start);
+          const after = content.slice(selection.end);
+          const newContent = before + template + after;
+
+          // 更新内容
+          api.editor.setContent(newContent);
+
+          // 将光标定位到 url 处
+          const urlStart = selection.start + linkText.length + 3;
+          const urlEnd = urlStart + 3;
+          api.editor.setSelection(urlStart, urlEnd);
+        },
+        isEnabled: () => true
+      });
+
+      // 创建图片命令
+      const createImageCommand = (): Command => ({
+        id: 'image',
+        execute: () => {
+          const content = api.editor.getContent();
+          const selection = api.editor.getSelection();
+          const selectedText = content.slice(selection.start, selection.end);
+
+          // 准备插入的文本
+          const altText = selectedText || 'alt text';
+          const template = `![${altText}](image_url)`;
+
+          // 计算新内容
+          const before = content.slice(0, selection.start);
+          const after = content.slice(selection.end);
+          const newContent = before + template + after;
+
+          // 更新内容
+          api.editor.setContent(newContent);
+
+          // 将光标定位到 image_url 处
+          const urlStart = selection.start + altText.length + 4;
+          const urlEnd = urlStart + 9;
+          api.editor.setSelection(urlStart, urlEnd);
+        },
+        isEnabled: () => true
+      });
+
+      // 创建表格命令
+      const createTableCommand = (): Command => ({
+        id: 'table',
+        execute: () => {
+          const content = api.editor.getContent();
+          const selection = api.editor.getSelection();
+
+          // 表格模板
+          const template = '\n| header 1 | header 2 |\n| -------- | -------- |\n| cell 1 | cell 2 |\n| cell 3 | cell 4 |\n| cell 5 | cell 6 |';
+
+          // 计算新内容
+          const before = content.slice(0, selection.start);
+          const after = content.slice(selection.end);
+          const newContent = before + template + after;
+
+          // 更新内容
+          api.editor.setContent(newContent);
+
+          // 将光标定位到表格末尾
+          const newPosition = selection.start + template.length;
+          api.editor.setSelection(newPosition, newPosition);
+        },
+        isEnabled: () => true
+      });
 
       // 注册格式化命令
       const formatCommands: Command[] = [
@@ -276,6 +370,11 @@ export const createTextFormattingPlugin = (): Plugin => {
       // 注册引用和水平线命令
       api.commands.registerCommand(createQuoteCommand());
       api.commands.registerCommand(createHorizontalLineCommand());
+
+      // 注册链接、图片和表格命令
+      api.commands.registerCommand(createLinkCommand());
+      api.commands.registerCommand(createImageCommand());
+      api.commands.registerCommand(createTableCommand());
 
 
       console.log('文本格式化插件初始化完成');
@@ -309,63 +408,91 @@ export const createTextFormattingPlugin = (): Plugin => {
         // 现有的格式化按钮
         <ToolbarButton
           key="bold"
-          icon={<BoldIcon />}
+          icon={<BoldIcon/>}
           title="加粗 (Ctrl+B)"
           onClick={() => plugin.api!.commands.executeCommand('bold')}
         />,
         <ToolbarButton
           key="italic"
-          icon={<ItalicIcon />}
+          icon={<ItalicIcon/>}
           title="斜体 (Ctrl+I)"
           onClick={() => plugin.api!.commands.executeCommand('italic')}
         />,
         <ToolbarButton
           key="strikethrough"
-          icon={<StrikethroughIcon />}
+          icon={<StrikethroughIcon/>}
           title="删除线 (Ctrl+D)"
           onClick={() => plugin.api!.commands.executeCommand('strikethrough')}
         />,
         // 添加标题按钮
         <ToolbarButton
           key="h1"
-          icon={<H1Icon />}
+          icon={<H1Icon/>}
           title="一级标题"
           onClick={() => plugin.api!.commands.executeCommand('heading1')}
         />,
         // 添加标题按钮
         <ToolbarButton
           key="h2"
-          icon={<H2Icon />}
+          icon={<H2Icon/>}
           title="二级标题"
           onClick={() => plugin.api!.commands.executeCommand('heading2')}
         />,
         // 添加标题按钮
         <ToolbarButton
           key="h3"
-          icon={<H3Icon />}
+          icon={<H3Icon/>}
           title="三级标题"
           onClick={() => plugin.api!.commands.executeCommand('heading3')}
         />,
         // 添加列表按钮
         <ToolbarButton
           key="bulletList"
-          icon={<ListBulletIcon />}
+          icon={<ListBulletIcon/>}
           title="无序列表"
           onClick={() => plugin.api!.commands.executeCommand('listbullet')}
         />,
         <ToolbarButton
+          key="numberList"
+          icon={<ListNumberIcon/>}
+          title="有序列表"
+          onClick={() => plugin.api!.commands.executeCommand('listnumber')}
+        />,
+        // 引用按钮
+        <ToolbarButton
           key="quote"
-          icon={<QuoteIcon />}
+          icon={<QuoteIcon/>}
           title="引用"
           onClick={() => plugin.api!.commands.executeCommand('quote')}
         />,
-        // 添加引用按钮
+        // 水平线按钮
         <ToolbarButton
           key="horizontalLine"
-          icon={<HorizontalLineIcon />}
+          icon={<HorizontalLineIcon/>}
           title="水平线"
           onClick={() => plugin.api!.commands.executeCommand('horizontalLine')}
-        />
+        />,
+        // 链接按钮
+        <ToolbarButton
+          key="link"
+          icon={<LinkIcon/>}
+          title="链接"
+          onClick={() => plugin.api!.commands.executeCommand('link')}
+        />,
+        // 图片按钮
+        <ToolbarButton
+          key="image"
+          icon={<PicIcon/>}
+          title="图片"
+          onClick={() => plugin.api!.commands.executeCommand('image')}
+        />,
+        // 表格按钮
+        <ToolbarButton
+          key="table"
+          icon={<TableIcon/>}
+          title="表格"
+          onClick={() => plugin.api!.commands.executeCommand('table')}
+        />,
       ];
     },
 
