@@ -16,6 +16,7 @@ export interface KeyboardShortcut {
 const DEFAULT_SHORTCUTS: KeyboardShortcut[] = [
   // CorePlugin shortcuts
   { key: 'z', ctrlKey: true, commandId: 'undo', pluginId: 'core' },
+  { key: 'z', ctrlKey: true, shiftKey: true, commandId: 'redo', pluginId: 'core' },
   { key: 'y', ctrlKey: true, commandId: 'redo', pluginId: 'core' },
   { key: 'c', ctrlKey: true, commandId: 'copy', pluginId: 'core' },
 
