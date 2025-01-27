@@ -3,7 +3,7 @@ import React from 'react';
 import type { Plugin, EditorAPI } from '@/types/plugin';
 import type { Command } from '@/core/commands/CommandSystem';
 import { ToolbarButton } from '@/components/Toolbar/ToolbarButton';
-import { BoldIcon, ItalicIcon, StrikethroughIcon, H1Icon,H2Icon,H3Icon, ListBulletIcon, ListNumberIcon } from '@/components/Toolbar/icons';
+import { BoldIcon, ItalicIcon, StrikethroughIcon, H1Icon,H2Icon,H3Icon, ListBulletIcon, ListNumberIcon, HorizontalLineIcon, QuoteIcon} from '@/components/Toolbar/icons';
 
 // 工具栏按钮的属性接口
 interface ToolbarButtonProps {
@@ -170,6 +170,91 @@ export const createTextFormattingPlugin = (): Plugin => {
         isEnabled: () => true
       });
 
+      // 创建引用命令
+      const createQuoteCommand = (): Command => ({
+        id: 'quote',
+        execute: () => {
+          const content = api.editor.getContent();
+          const selection = api.editor.getSelection();
+          const lines = content.split('\n');
+          let currentLineStart = 0;
+          let startLine = -1;
+          let endLine = -1;
+
+          // 找到选区范围内的所有行
+          for (let i = 0; i < lines.length; i++) {
+            const lineLength = lines[i].length + 1;
+            if (currentLineStart <= selection.start && selection.start < currentLineStart + lineLength) {
+              startLine = i;
+            }
+            if (currentLineStart <= selection.end && selection.end < currentLineStart + lineLength) {
+              endLine = i;
+              break;
+            }
+            currentLineStart += lineLength;
+          }
+
+          // 如果没有找到结束行，就用最后一行
+          if (endLine === -1) {
+            endLine = lines.length - 1;
+          }
+
+          // 对选中范围内的每一行应用引用标记
+          for (let i = startLine; i <= endLine; i++) {
+            // 移除已有的引用标记
+            lines[i] = lines[i].replace(/^>\s*/, '');
+            // 添加新的引用标记
+            lines[i] = '> ' + lines[i];
+          }
+
+          // 更新内容
+          api.editor.setContent(lines.join('\n'));
+
+          // 更新选区到整个引用范围
+          const newSelectionStart = lines.slice(0, startLine).join('\n').length + (startLine > 0 ? 1 : 0);
+          const newSelectionEnd = lines.slice(0, endLine + 1).join('\n').length;
+          api.editor.setSelection(newSelectionStart, newSelectionEnd);
+        },
+        isEnabled: () => true
+      });
+
+      // 创建水平线命令
+      const createHorizontalLineCommand = (): Command => ({
+        id: 'horizontalLine',
+        execute: () => {
+          const content = api.editor.getContent();
+          const selection = api.editor.getSelection();
+          const lines = content.split('\n');
+          let currentLineStart = 0;
+          let targetLine = -1;
+
+          // 找到光标所在的行
+          for (let i = 0; i < lines.length; i++) {
+            const lineLength = lines[i].length + 1;
+            if (currentLineStart <= selection.start && selection.start < currentLineStart + lineLength) {
+              targetLine = i;
+              break;
+            }
+            currentLineStart += lineLength;
+          }
+
+          if (targetLine !== -1) {
+            // 在当前行插入水平线
+            const linesBefore = lines.slice(0, targetLine);
+            const linesAfter = lines.slice(targetLine);
+            const newLines = [...linesBefore, '---', ...linesAfter];
+
+            // 更新内容
+            api.editor.setContent(newLines.join('\n'));
+
+            // 将光标移动到水平线的下一行
+            const newPosition = newLines.slice(0, targetLine + 2).join('\n').length + 1;
+            api.editor.setSelection(newPosition, newPosition);
+          }
+        },
+        isEnabled: () => true
+      });
+
 
       // 注册格式化命令
       const formatCommands: Command[] = [
@@ -187,6 +272,10 @@ export const createTextFormattingPlugin = (): Plugin => {
       // 注册列表命令
       api.commands.registerCommand(createListCommand('bullet'));
       api.commands.registerCommand(createListCommand('number'));
+
+      // 注册引用和水平线命令
+      api.commands.registerCommand(createQuoteCommand());
+      api.commands.registerCommand(createHorizontalLineCommand());
 
 
       console.log('文本格式化插件初始化完成');
@@ -265,10 +354,17 @@ export const createTextFormattingPlugin = (): Plugin => {
           onClick={() => plugin.api!.commands.executeCommand('listbullet')}
         />,
         <ToolbarButton
-          key="numberList"
-          icon={<ListNumberIcon />}
-          title="有序列表"
-          onClick={() => plugin.api!.commands.executeCommand('listnumber')}
+          key="quote"
+          icon={<QuoteIcon />}
+          title="引用"
+          onClick={() => plugin.api!.commands.executeCommand('quote')}
+        />,
+        // 添加引用按钮
+        <ToolbarButton
+          key="horizontalLine"
+          icon={<HorizontalLineIcon />}
+          title="水平线"
+          onClick={() => plugin.api!.commands.executeCommand('horizontalLine')}
         />
       ];
     },
