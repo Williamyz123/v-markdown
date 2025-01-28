@@ -10,7 +10,9 @@
   padding: 0;
   box-sizing: border-box;
 }
-
+html{
+  font-size: 40px
+}
 // 导入组件样式
 @import './components/editor';
 @import './components/toolbar';
