@@ -198,6 +198,72 @@ export class Parser {
 
     while (current < tokens.length) {
       const token = tokens[current];
+      const text = token.value;
+
+      // 处理图片 - 优先处理图片，因为图片语法包含链接语法
+      const imgMatch = text.match(/!\[(.*?)\]\((.*?)\)/);
+      if (imgMatch) {
+        const [fullMatch, alt, url] = imgMatch;
+        const index = text.indexOf(fullMatch);
+
+        // 处理图片前的文本
+        if (index > 0) {
+          nodes.push({
+            type: 'text',
+            value: text.slice(0, index)
+          });
+        }
+
+        // 添加图片节点
+        nodes.push({
+          type: 'image',
+          tag: 'img',
+          alt,
+          url
+        });
+
+        // 更新当前token的剩余内容
+        tokens[current] = {
+          ...token,
+          value: text.slice(index + fullMatch.length)
+        };
+        continue;
+      }
+
+      // 处理链接
+      const linkMatch = text.match(/\[(.*?)\]\((.*?)\)/);
+      if (linkMatch) {
+        const [fullMatch, text, url] = linkMatch;
+        const index = token.value.indexOf(fullMatch);
+
+        // 处理链接前的文本
+        if (index > 0) {
+          nodes.push({
+            type: 'text',
+            value: token.value.slice(0, index)
+          });
+        }
+
+        // 添加链接节点
+        nodes.push({
+          type: 'link',
+          tag: 'a',
+          url,
+          children: [{
+            type: 'text',
+            value: text
+          }]
+        });
+
+        // 更新当前token的剩余内容
+        tokens[current] = {
+          ...token,
+          value: token.value.slice(index + fullMatch.length)
+        };
+        continue;
+      }
+
+
 
       if (token.type === 'symbol') {
         if (token.value === '**') {
@@ -228,11 +294,12 @@ export class Parser {
       }
 
       // 处理普通文本
-      nodes.push({
-        type: 'text',
-        value: token.value
-      });
-
+      if (token.value) {
+        nodes.push({
+          type: 'text',
+          value: token.value
+        });
+      }
       current++;
     }
 

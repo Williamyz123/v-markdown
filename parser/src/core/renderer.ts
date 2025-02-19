@@ -11,6 +11,12 @@ export class Renderer {
       case 'root':
         return this.renderChildren(node);
 
+      case 'link':
+        return `<a href="${node.url}">${this.renderChildren(node)}</a>`;
+
+      case 'image':
+        return `<img src="${node.url}" alt="${node.alt || ''}">`;
+
       case 'heading':
       case 'paragraph':
       case 'bold':

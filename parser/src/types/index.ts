@@ -9,7 +9,9 @@ export type NodeType =
   | 'strikethrough'  // 删除线
   | 'bullet_list'    // 无序列表
   | 'ordered_list'   // 有序列表
-  | 'list_item';     // 列表项
+  | 'list_item'      // 列表项
+  | 'link'        // 添加链接类型
+  | 'image';      // 添加图片类型
 
 // AST 节点接口
 export interface ASTNode {
@@ -19,6 +21,8 @@ export interface ASTNode {
   level?: number;    // 标题级别
   children?: ASTNode[];
   listType?: 'bullet' | 'ordered';
+  url?: string;       // 添加url属性
+  alt?: string;       // 添加alt属性
 }
 
 // Token 接口
