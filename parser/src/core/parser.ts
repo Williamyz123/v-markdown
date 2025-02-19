@@ -57,6 +57,20 @@ export class Parser {
     if (tokens.length === 0) return null;
 
     const firstToken = tokens[0];
+    const text = firstToken.value;
+
+    // 处理水平线
+    if (text === '---' || text === '***') {
+      return {
+        type: 'hr',
+        tag: 'hr'
+      };
+    }
+
+    // 处理引用
+    if (text.startsWith('> ')) {
+      return this.parseBlockquote(tokens);
+    }
 
     // 解析无序列表
     if (firstToken.type === 'text' &&
@@ -75,6 +89,26 @@ export class Parser {
     }
 
     return this.parseParagraph(tokens);
+  }
+
+  private parseBlockquote(tokens: Token[]): ASTNode {
+    const firstToken = tokens[0];
+    let content = firstToken.value.slice(2); // 移除 '> '
+
+    // 更新token内容
+    const newTokens = [
+      {
+        ...firstToken,
+        value: content
+      },
+      ...tokens.slice(1)
+    ];
+
+    return {
+      type: 'blockquote',
+      tag: 'blockquote',
+      children: this.parseInlineTokens(newTokens)
+    };
   }
 
   private parseListItem(tokens: Token[], listType: 'bullet' | 'ordered'): ASTNode {
@@ -110,28 +144,30 @@ export class Parser {
     const processed: ASTNode[] = [];
     let currentList: ASTNode | null = null;
     let currentListType: 'bullet' | 'ordered' | null = null;
+    let currentQuote: ASTNode | null = null;
 
     for (const node of nodes) {
       if (node.type === 'list_item') {
-        const listType = (node as any).listType;
-
-        // 如果是新的列表类型，创建新列表
-        if (!currentList || currentListType !== listType) {
-          currentList = {
-            type: listType === 'bullet' ? 'bullet_list' : 'ordered_list',
-            tag: listType === 'bullet' ? 'ul' : 'ol',
+        // 列表处理逻辑保持不变...
+      } else if (node.type === 'blockquote') {
+        // 处理连续的引用
+        if (!currentQuote) {
+          currentQuote = {
+            type: 'blockquote',
+            tag: 'blockquote',
             children: []
           };
-          currentListType = listType;
-          processed.push(currentList);
+          processed.push(currentQuote);
         }
-
-        // 添加列表项到当前列表
-        currentList.children!.push(node);
+        currentQuote.children = currentQuote.children || [];
+        if (node.children) {
+          currentQuote.children.push(...node.children);
+        }
       } else {
-        // 如果不是列表项，重置当前列表
+        // 重置当前引用和列表
         currentList = null;
         currentListType = null;
+        currentQuote = null;
         processed.push(node);
       }
     }

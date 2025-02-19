@@ -25,11 +25,13 @@ export class Renderer {
       case 'bullet_list':
       case 'ordered_list':
       case 'list_item':
+      case 'blockquote':
         return this.renderElement(node);
+      case 'hr':
+        return '<hr>';
 
       case 'text':
         return node.value || '';
-
       default:
         return '';
     }

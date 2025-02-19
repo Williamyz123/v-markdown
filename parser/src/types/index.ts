@@ -11,7 +11,9 @@ export type NodeType =
   | 'ordered_list'   // 有序列表
   | 'list_item'      // 列表项
   | 'link'        // 添加链接类型
-  | 'image';      // 添加图片类型
+  | 'image'       // 添加图片类型
+  | 'blockquote'    // 添加引用类型
+  | 'hr';           // 添加水平线类型
 
 // AST 节点接口
 export interface ASTNode {
