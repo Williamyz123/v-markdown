@@ -5,27 +5,6 @@ export class Parser {
   private tokens: Token[] = [];
   private current: number = 0;
 
-  parse(tokens: Token[]): ASTNode {
-    this.tokens = tokens;
-    this.current = 0;
-
-    // 创建根节点
-    const ast: ASTNode = {
-      type: 'root',
-      children: []
-    };
-
-    // 解析每一行
-    const lines = this.splitTokensIntoLines();
-    for (const line of lines) {
-      const node = this.parseLine(line);
-      if (node) {
-        ast.children!.push(node);
-      }
-    }
-
-    return ast;
-  }
 
   private splitTokensIntoLines(): Token[][] {
     const lines: Token[][] = [];
@@ -77,13 +56,104 @@ export class Parser {
   private parseLine(tokens: Token[]): ASTNode | null {
     if (tokens.length === 0) return null;
 
-    // 解析标题
-    if (tokens[0].type === 'symbol' && tokens[0].value.startsWith('#')) {
+    const firstToken = tokens[0];
+
+    // 解析无序列表
+    if (firstToken.type === 'text' &&
+      (firstToken.value.startsWith('- ') || firstToken.value.startsWith('* '))) {
+      return this.parseListItem(tokens, 'bullet');
+    }
+
+    // 解析有序列表
+    if (firstToken.type === 'text' && /^\d+\.\s/.test(firstToken.value)) {
+      return this.parseListItem(tokens, 'ordered');
+    }
+
+    // ... 其他解析逻辑保持不变
+    if (firstToken.type === 'symbol' && firstToken.value.startsWith('#')) {
       return this.parseHeading(tokens);
     }
 
-    // 解析段落
     return this.parseParagraph(tokens);
+  }
+
+  private parseListItem(tokens: Token[], listType: 'bullet' | 'ordered'): ASTNode {
+    const firstToken = tokens[0];
+    let content = firstToken.value;
+
+    // 移除列表标记
+    if (listType === 'bullet') {
+      content = content.replace(/^[-*]\s+/, '');
+    } else {
+      content = content.replace(/^\d+\.\s+/, '');
+    }
+
+    // 修改这里：用修改后的content创建新的token
+    const newTokens = [
+      {
+        ...firstToken,
+        value: content
+      },
+      ...tokens.slice(1)
+    ];
+
+    return {
+      type: 'list_item',
+      tag: 'li',
+      listType,
+      children: this.parseInlineTokens(newTokens)  // 使用包含内容的newTokens
+    };
+  }
+
+  // 新增：合并连续的列表项
+  private processNodes(nodes: ASTNode[]): ASTNode[] {
+    const processed: ASTNode[] = [];
+    let currentList: ASTNode | null = null;
+    let currentListType: 'bullet' | 'ordered' | null = null;
+
+    for (const node of nodes) {
+      if (node.type === 'list_item') {
+        const listType = (node as any).listType;
+
+        // 如果是新的列表类型，创建新列表
+        if (!currentList || currentListType !== listType) {
+          currentList = {
+            type: listType === 'bullet' ? 'bullet_list' : 'ordered_list',
+            tag: listType === 'bullet' ? 'ul' : 'ol',
+            children: []
+          };
+          currentListType = listType;
+          processed.push(currentList);
+        }
+
+        // 添加列表项到当前列表
+        currentList.children!.push(node);
+      } else {
+        // 如果不是列表项，重置当前列表
+        currentList = null;
+        currentListType = null;
+        processed.push(node);
+      }
+    }
+
+    return processed;
+  }
+
+  parse(tokens: Token[]): ASTNode {
+    this.tokens = tokens;
+    this.current = 0;
+
+    const lines = this.splitTokensIntoLines();
+    const rawNodes = lines
+      .map(line => this.parseLine(line))
+      .filter((node): node is ASTNode => node !== null);
+
+    const processedNodes = this.processNodes(rawNodes);
+
+    return {
+      type: 'root',
+      children: processedNodes
+    };
   }
 
   private parseHeading(tokens: Token[]): ASTNode {

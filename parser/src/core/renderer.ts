@@ -16,6 +16,9 @@ export class Renderer {
       case 'bold':
       case 'italic':
       case 'strikethrough':
+      case 'bullet_list':
+      case 'ordered_list':
+      case 'list_item':
         return this.renderElement(node);
 
       case 'text':
