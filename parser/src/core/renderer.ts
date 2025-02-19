@@ -26,9 +26,14 @@ export class Renderer {
       case 'ordered_list':
       case 'list_item':
       case 'blockquote':
+      case 'table':
+      case 'table_row':
         return this.renderElement(node);
       case 'hr':
         return '<hr>';
+      case 'table_cell':
+        const tag = node.isHeader ? 'th' : 'td';
+        return `<${tag}>${this.renderChildren(node)}</${tag}>`;
 
       case 'text':
         return node.value || '';

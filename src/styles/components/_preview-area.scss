@@ -104,4 +104,15 @@
       }
     }
   }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 1em 0;
+    border: 1px solid;
+
+    td, th {
+      border: 1px solid;
+      padding: 0.5em;
+    }
+  }
 }

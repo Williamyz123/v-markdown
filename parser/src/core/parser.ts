@@ -139,37 +139,78 @@ export class Parser {
     };
   }
 
+  private isTableRow(text: string): boolean {
+    return text.trim().startsWith('|') && text.trim().endsWith('|');
+  }
+
+  private isTableDelimiter(text: string): boolean {
+    return /^\|(\s*-+\s*\|)+$/.test(text.trim());
+  }
+
+  private parseTableRow(text: string, isHeader: boolean = false): ASTNode {
+    // 移除首尾的 | 并分割单元格
+    const cells = text.trim()
+      .slice(1, -1)
+      .split('|')
+      .map(cell => cell.trim());
+
+    return {
+      type: 'table_row',
+      tag: 'tr',
+      children: cells.map(cellContent => ({
+        type: 'table_cell',
+        tag: isHeader ? 'th' : 'td',
+        isHeader,
+        children: this.parseInlineTokens([{ type: 'text', value: cellContent, position: { start: 0, end: 0 } }])
+      }))
+    };
+  }
+
   // 新增：合并连续的列表项
   private processNodes(nodes: ASTNode[]): ASTNode[] {
     const processed: ASTNode[] = [];
-    let currentList: ASTNode | null = null;
-    let currentListType: 'bullet' | 'ordered' | null = null;
-    let currentQuote: ASTNode | null = null;
+    let currentTable: ASTNode | null = null;
+    let isProcessingTable = false;
+    let hasDelimiter = false;
 
-    for (const node of nodes) {
-      if (node.type === 'list_item') {
-        // 列表处理逻辑保持不变...
-      } else if (node.type === 'blockquote') {
-        // 处理连续的引用
-        if (!currentQuote) {
-          currentQuote = {
-            type: 'blockquote',
-            tag: 'blockquote',
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+      const nodeText = node.children?.[0]?.value || '';
+
+      // 检测表格开始
+      if (this.isTableRow(nodeText)) {
+        // 如果是新表格
+        if (!isProcessingTable) {
+          currentTable = {
+            type: 'table',
+            tag: 'table',
             children: []
           };
-          processed.push(currentQuote);
+          processed.push(currentTable);
+          isProcessingTable = true;
+
+          // 添加表头行
+          currentTable.children!.push(this.parseTableRow(nodeText, true));
+          continue;
         }
-        currentQuote.children = currentQuote.children || [];
-        if (node.children) {
-          currentQuote.children.push(...node.children);
+
+        // 检查是否是分隔行
+        if (this.isTableDelimiter(nodeText)) {
+          hasDelimiter = true;
+          continue;
         }
-      } else {
-        // 重置当前引用和列表
-        currentList = null;
-        currentListType = null;
-        currentQuote = null;
-        processed.push(node);
+
+        // 如果已经有了分隔行，这是数据行
+        if (hasDelimiter && currentTable) {
+          currentTable.children!.push(this.parseTableRow(nodeText, false));
+        }
+        continue;
       }
+
+      // 如果不是表格行，结束表格处理
+      isProcessingTable = false;
+      hasDelimiter = false;
+      processed.push(node);
     }
 
     return processed;

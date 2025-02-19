@@ -13,7 +13,10 @@ export type NodeType =
   | 'link'        // 添加链接类型
   | 'image'       // 添加图片类型
   | 'blockquote'    // 添加引用类型
-  | 'hr';           // 添加水平线类型
+  | 'hr'            // 添加水平线类型
+  | 'table'         // 表格
+  | 'table_row'     // 表格行
+  | 'table_cell';   // 表格单元格
 
 // AST 节点接口
 export interface ASTNode {
@@ -25,6 +28,7 @@ export interface ASTNode {
   listType?: 'bullet' | 'ordered';
   url?: string;       // 添加url属性
   alt?: string;       // 添加alt属性
+  isHeader?: boolean;  // 标记是否为表头单元格
 }
 
 // Token 接口
