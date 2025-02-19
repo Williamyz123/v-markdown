@@ -67,9 +67,9 @@ const initialEditorState: EditorState = {
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
   // 创建一个函数来打印历史记录的变化
   const logHistoryChange = (past: HistoryItem[], future: HistoryItem[], type: string) => {
-    console.log(`History ${type} changed:`);
-    console.log('Past:', past);
-    console.log('Future:', future);
+    // console.log(`History ${type} changed:`);
+    // console.log('Past:', past);
+    // console.log('Future:', future);
   };
 
   switch (action.type) {

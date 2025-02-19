@@ -23,3 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea/
+
+/parser/dist
+/parser/node_modules

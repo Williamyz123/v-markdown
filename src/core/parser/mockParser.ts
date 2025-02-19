@@ -9,6 +9,8 @@ import type {
   Token
 } from "@/types/editor";
 
+import MarkdownParser from 'myz-markdown-parser';
+
 // 定义 Markdown 解析器接口
 export interface IMarkdownParser {
   parse(content: string, options?: ParserOptions): ParseResult;
@@ -207,9 +209,11 @@ const parseCodeBlock = (content: string): CodeBlock[] => {
 
 export class MockMarkdownParser implements IMarkdownParser {
   private options: ParserOptions;
+  private parser: any;
 
   constructor(options: ParserOptions) {
     this.options = options;
+    this.parser = new MarkdownParser();
   }
 
   parse(content: string): ParseResult {
@@ -222,6 +226,8 @@ export class MockMarkdownParser implements IMarkdownParser {
       const originalCode = content.substring(block.position.start, block.position.end);
       html = html.replace(originalCode, codeBlockToHtml(block));
     });
+    console.log("0_1_codeBlocks")
+    console.log(codeBlocks)
 
     // 处理其他Markdown语法
     html = html
@@ -240,9 +246,16 @@ export class MockMarkdownParser implements IMarkdownParser {
       })
       .join('\n');
 
+    console.log("0_2_html")
+    console.log(html);
+
+    let htmlFromParser = this.parser.render(content);
+    console.log("0_3_htmlFromParser")
+    console.log(htmlFromParser);
+
     // 返回解析结果
     return {
-      html,
+      "html": htmlFromParser,
       codeBlocks,
       meta: {
         wordCount: content.split(/\s+/).length,
