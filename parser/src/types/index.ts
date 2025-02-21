@@ -4,16 +4,16 @@ export type NodeType =
   | 'heading'        // 标题
   | 'paragraph'      // 段落
   | 'text'           // 文本
-  | 'bold'           // 粗体
-  | 'italic'         // 斜体
-  | 'strikethrough'  // 删除线
-  | 'bullet_list'    // 无序列表
-  | 'ordered_list'   // 有序列表
-  | 'list_item'      // 列表项
-  | 'link'        // 添加链接类型
-  | 'image'       // 添加图片类型
-  | 'blockquote'    // 添加引用类型
-  | 'hr'            // 添加水平线类型
+  | 'bold'          // 粗体
+  | 'italic'        // 斜体
+  | 'strikethrough' // 删除线
+  | 'bullet_list'   // 无序列表
+  | 'ordered_list'  // 有序列表
+  | 'list_item'     // 列表项
+  | 'link'          // 链接
+  | 'image'         // 图片
+  | 'blockquote'    // 引用
+  | 'hr'            // 水平线
   | 'table'         // 表格
   | 'table_row'     // 表格行
   | 'table_cell';   // 表格单元格
@@ -26,12 +26,11 @@ export interface ASTNode {
   level?: number;    // 标题级别
   children?: ASTNode[];
   listType?: 'bullet' | 'ordered';
-  url?: string;       // 添加url属性
-  alt?: string;       // 添加alt属性
-  isHeader?: boolean;  // 标记是否为表头单元格
+  url?: string;      // url属性
+  alt?: string;      // alt属性
+  isHeader?: boolean; // 标记是否为表头单元格
 }
 
-// Token 接口
 export interface Token {
   type: 'text' | 'symbol';
   value: string;

@@ -288,13 +288,13 @@ export const createExportPlugin = (): Plugin => {
         <ToolbarButton
           key="exportHtml"
           icon={<ExportHTMLIcon />}
-          title="Export as HTML"
+          title="导出为HTML"
           onClick={() => plugin.api!.commands.executeCommand('exportHtml')}
         />,
         <ToolbarButton
           key="exportPdf"
           icon={<ExportPDFIcon />}
-          title="Export as PDF"
+          title="导出为PDF"
           onClick={() => plugin.api!.commands.executeCommand('exportPdf')}
         />
       ];

@@ -17,26 +17,33 @@ export class Renderer {
       case 'image':
         return `<img src="${node.url}" alt="${node.alt || ''}">`;
 
+      case 'bullet_list':
+        return `<ul>${this.renderChildren(node)}</ul>`;
+
+      case 'ordered_list':
+        return `<ol>${this.renderChildren(node)}</ol>`;
+
+      case 'list_item':
       case 'heading':
       case 'paragraph':
       case 'bold':
       case 'italic':
       case 'strikethrough':
-      case 'bullet_list':
-      case 'ordered_list':
-      case 'list_item':
       case 'blockquote':
       case 'table':
       case 'table_row':
         return this.renderElement(node);
+
       case 'hr':
         return '<hr>';
+
       case 'table_cell':
         const tag = node.isHeader ? 'th' : 'td';
         return `<${tag}>${this.renderChildren(node)}</${tag}>`;
 
       case 'text':
         return node.value || '';
+
       default:
         return '';
     }
@@ -44,8 +51,8 @@ export class Renderer {
 
   private renderElement(node: ASTNode): string {
     const tag = node.tag;
-    const children = this.renderChildren(node);
-    return `<${tag}>${children}</${tag}>`;
+    if (!tag) return this.renderChildren(node);
+    return `<${tag}>${this.renderChildren(node)}</${tag}>`;
   }
 
   private renderChildren(node: ASTNode): string {

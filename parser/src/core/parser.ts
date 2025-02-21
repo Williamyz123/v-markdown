@@ -53,6 +53,81 @@ export class Parser {
     return lines;
   }
 
+  private processNodes(nodes: ASTNode[]): ASTNode[] {
+    const processed: ASTNode[] = [];
+    let currentTable: ASTNode | null = null;
+    let currentList: ASTNode | null = null;
+    let isProcessingTable = false;
+    let hasDelimiter = false;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const node = nodes[i];
+
+      // 处理列表项
+      if (node.type === 'list_item') {
+        // 如果是新的列表或列表类型改变
+        if (!currentList ||
+          (currentList.type === 'bullet_list' && node.listType === 'ordered') ||
+          (currentList.type === 'ordered_list' && node.listType === 'bullet')) {
+          currentList = {
+            type: node.listType === 'bullet' ? 'bullet_list' : 'ordered_list',
+            tag: node.listType === 'bullet' ? 'ul' : 'ol',
+            children: []
+          };
+          processed.push(currentList);
+        }
+
+        // 添加列表项到当前列表
+        currentList.children!.push(node);
+        continue;
+      } else {
+        // 不是列表项，结束当前列表
+        currentList = null;
+      }
+
+      // 处理表格
+      const nodeText = node.children?.[0]?.value || '';
+      if (node.type === 'table_row' || (nodeText && this.isTableRow(nodeText))) {
+        if (!isProcessingTable) {
+          currentTable = {
+            type: 'table',
+            tag: 'table',
+            children: []
+          };
+          processed.push(currentTable);
+          isProcessingTable = true;
+          if (node.type === 'table_row') {
+            currentTable.children!.push(node);
+          } else if (nodeText) {
+            currentTable.children!.push(this.parseTableRow(nodeText, true));
+          }
+          continue;
+        }
+
+        if (nodeText && this.isTableDelimiter(nodeText)) {
+          hasDelimiter = true;
+          continue;
+        }
+
+        if (hasDelimiter && currentTable) {
+          if (node.type === 'table_row') {
+            currentTable.children!.push(node);
+          } else if (nodeText) {
+            currentTable.children!.push(this.parseTableRow(nodeText, false));
+          }
+          continue;
+        }
+      } else {
+        isProcessingTable = false;
+        hasDelimiter = false;
+      }
+
+      processed.push(node);
+    }
+
+    return processed;
+  }
+
   private parseLine(tokens: Token[]): ASTNode | null {
     if (tokens.length === 0) return null;
 
@@ -74,16 +149,16 @@ export class Parser {
 
     // 解析无序列表
     if (firstToken.type === 'text' &&
-      (firstToken.value.startsWith('- ') || firstToken.value.startsWith('* '))) {
+      (text.startsWith('- ') || text.startsWith('* '))) {
       return this.parseListItem(tokens, 'bullet');
     }
 
     // 解析有序列表
-    if (firstToken.type === 'text' && /^\d+\.\s/.test(firstToken.value)) {
+    if (firstToken.type === 'text' && /^\d+\.\s/.test(text)) {
       return this.parseListItem(tokens, 'ordered');
     }
 
-    // ... 其他解析逻辑保持不变
+    // 处理标题
     if (firstToken.type === 'symbol' && firstToken.value.startsWith('#')) {
       return this.parseHeading(tokens);
     }
@@ -166,55 +241,6 @@ export class Parser {
     };
   }
 
-  // 新增：合并连续的列表项
-  private processNodes(nodes: ASTNode[]): ASTNode[] {
-    const processed: ASTNode[] = [];
-    let currentTable: ASTNode | null = null;
-    let isProcessingTable = false;
-    let hasDelimiter = false;
-
-    for (let i = 0; i < nodes.length; i++) {
-      const node = nodes[i];
-      const nodeText = node.children?.[0]?.value || '';
-
-      // 检测表格开始
-      if (this.isTableRow(nodeText)) {
-        // 如果是新表格
-        if (!isProcessingTable) {
-          currentTable = {
-            type: 'table',
-            tag: 'table',
-            children: []
-          };
-          processed.push(currentTable);
-          isProcessingTable = true;
-
-          // 添加表头行
-          currentTable.children!.push(this.parseTableRow(nodeText, true));
-          continue;
-        }
-
-        // 检查是否是分隔行
-        if (this.isTableDelimiter(nodeText)) {
-          hasDelimiter = true;
-          continue;
-        }
-
-        // 如果已经有了分隔行，这是数据行
-        if (hasDelimiter && currentTable) {
-          currentTable.children!.push(this.parseTableRow(nodeText, false));
-        }
-        continue;
-      }
-
-      // 如果不是表格行，结束表格处理
-      isProcessingTable = false;
-      hasDelimiter = false;
-      processed.push(node);
-    }
-
-    return processed;
-  }
 
   parse(tokens: Token[]): ASTNode {
     this.tokens = tokens;
