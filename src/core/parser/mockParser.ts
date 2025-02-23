@@ -229,27 +229,27 @@ export class MockMarkdownParser implements IMarkdownParser {
     console.log("0_1_codeBlocks")
     console.log(codeBlocks)
 
-    // 处理其他Markdown语法
-    html = html
-      .split('\n')
-      .map(line => {
-        if (line.startsWith('# ')) {
-          return `<h1>${line.slice(2)}</h1>`;
-        }
-        if (line.startsWith('## ')) {
-          return `<h2>${line.slice(3)}</h2>`;
-        }
-        if (!line.startsWith('```') && line.trim() !== '') {  // 避免处理代码块标记
-          return `<p>${line}</p>`;
-        }
-        return line;
-      })
-      .join('\n');
+    // // 处理其他Markdown语法
+    // html = html
+    //   .split('\n')
+    //   .map(line => {
+    //     if (line.startsWith('# ')) {
+    //       return `<h1>${line.slice(2)}</h1>`;
+    //     }
+    //     if (line.startsWith('## ')) {
+    //       return `<h2>${line.slice(3)}</h2>`;
+    //     }
+    //     if (!line.startsWith('```') && line.trim() !== '') {  // 避免处理代码块标记
+    //       return `<p>${line}</p>`;
+    //     }
+    //     return line;
+    //   })
+    //   .join('\n');
+    //
+    // console.log("0_2_html")
+    // console.log(html);
 
-    console.log("0_2_html")
-    console.log(html);
-
-    let htmlFromParser = this.parser.render(content);
+    let htmlFromParser = this.parser.render(html);
     console.log("0_3_htmlFromParser")
     console.log(htmlFromParser);
 

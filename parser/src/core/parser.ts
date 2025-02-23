@@ -260,7 +260,7 @@ export class Parser {
   }
 
   private parseHeading(tokens: Token[]): ASTNode {
-    let level = 1;
+    let level = 0;
     let current = 0;
 
     // 计算标题级别
