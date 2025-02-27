@@ -93,9 +93,14 @@
 
   // 其他 Markdown 样式
   h1, h2, h3 { margin: 0.5em 0 0.5em; }
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.2rem; }
-  h3 { font-size: 1.1rem; }
+
+  // 中等屏幕设备
+  @media (max-width: 1499px) and (min-width: 1200px) {
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1.1rem; }
+  }
+
 
   ul, ol { margin: 1em 0; padding-left: 2em; }
   li { margin-bottom: 0.5em; }

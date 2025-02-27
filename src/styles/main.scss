@@ -11,16 +11,23 @@ html {
   // 大屏幕设备（例如你的ROG笔记本）
   @media (min-width: 1500px) {
     font-size: 18px;
+    .editor-toolbar .toolbar-right .theme-selector select {
+      font-size: 0.875rem; // 使用rem单位，保持一致性
+    }
+    .toolbar-button {
+      width: 2rem;
+      height: 2rem;
+    }
   }
 
   // 中等屏幕设备
   @media (max-width: 1499px) and (min-width: 1200px) {
-    font-size: 35px;
+    font-size: 15px;
   }
 
   // 小屏幕设备
   @media (max-width: 1199px) {
-    font-size: 35px;
+    font-size: 12px;
   }
 }
 
