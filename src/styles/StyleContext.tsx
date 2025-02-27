@@ -88,5 +88,3 @@ export const useStyles = () => {
   }
   return context;
 };
-
-export default StyleProvider;

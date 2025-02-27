@@ -168,30 +168,10 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     stateRef.current = state;
   }, [state]);
 
-  // 内容更新处理
-  const handleContentUpdate = useCallback(async (
-    content: string,
-    changes: ContentChange[]
-  ) => {
-    try {
-      const parseResult = changes.length > 0
-        ? parser.parseIncremental(content, changes)
-        : parser.parse(content);
-
-      dispatch({
-        type: 'UPDATE_CONTENT',
-        payload: { content, parseResult }
-      });
-    } catch (error) {
-      console.error('解析错误:', error);
-    }
-  }, [parser]);
-
   // 自动保存功能
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       saveToStorage(state.content);
-      console.log('Content auto-saved to localStorage');
     }, AUTOSAVE_DELAY);
 
     return () => clearTimeout(timeoutId);
@@ -215,6 +195,28 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     initializeContent();
   }, []);
+
+
+  // 内容更新处理
+  const handleContentUpdate = useCallback(async (
+    content: string,
+    changes: ContentChange[]
+  ) => {
+    try {
+      const parseResult = changes.length > 0
+        ? parser.parseIncremental(content, changes)
+        : parser.parse(content);
+
+      dispatch({
+        type: 'UPDATE_CONTENT',
+        payload: { content, parseResult }
+      });
+    } catch (error) {
+      console.error('解析错误:', error);
+    }
+  }, [parser]);
+
+
 
   // 创建编辑器API
   const editorAPI = useMemo(() => ({

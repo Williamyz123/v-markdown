@@ -19,13 +19,6 @@ import {
   PicIcon
 } from '@/components/Toolbar/icons';
 
-// 工具栏按钮的属性接口
-interface ToolbarButtonProps {
-  icon: string;
-  title: string;
-  onClick: () => void;
-  isActive?: boolean;
-}
 
 
 // 创建文本格式化插件的工厂函数
@@ -386,22 +379,6 @@ export const createTextFormattingPlugin = (): Plugin => {
         console.warn('插件API未初始化');
         return [];
       }
-
-      const createButton = (commandId: string, icon: React.ReactNode, title: string, shortcut: string) => {
-        const handleClick = () => {
-          plugin.api!.commands.executeCommand(commandId);
-        };
-
-        return (
-          <ToolbarButton
-            key={commandId}
-            icon={icon}
-            title={`${title} (${shortcut})`}
-            onClick={handleClick}
-            isActive={false}
-          />
-        );
-      };
 
       // 添加新的工具栏按钮
       return [
