@@ -44,8 +44,19 @@
 
     // 工具栏按钮样式
     .toolbar-button {
-      width: 0.6rem;
-      height: 0.6rem;
+
+      // 大屏幕设备（例如你的ROG笔记本）
+      @media (min-width: 1500px) {
+        width: 0.6rem;
+        height: 0.6rem;
+      }
+
+      // 中等屏幕设备
+      @media (max-width: 1499px) and (min-width: 1200px) {
+        width: 1rem;
+        height: 1rem;
+      }
+
       display: flex;
       align-items: center;
       justify-content: center;
