@@ -4,20 +4,6 @@
 @import './abstracts/variables';
 @import './abstracts/mixins';
 
-// 设置根字体大小和响应式规则
-html {
-
-  // 大屏幕设备（例如你的ROG笔记本）
-  @media (min-width: 1500px) {
-    font-size: 18px;
-  }
-
-  // 中等屏幕设备
-  @media (max-width: 1499px) and (min-width: 1200px) {
-    font-size: 16px;
-  }
-}
-
 // 重置样式
 * {
   margin: 0;

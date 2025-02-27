@@ -3,7 +3,7 @@
 .preview-area {
   padding: 1rem;
   overflow-y: auto;
-  font-size: 1rem;
+  font-size: 0.5rem;
 
   @each $theme, $colors in $themes {
     [data-theme='#{$theme}'] & {
@@ -20,12 +20,11 @@
     white-space: pre;
     word-wrap: normal;
     overflow-x: auto;
-    line-height: 1.4;
+    line-height: 1;
 
 
     code {
       font-family: $font-family-code;
-      font-size: 0.9rem;
     }
 
     // Github 主题
@@ -93,18 +92,7 @@
 
   // 其他 Markdown 样式
   h1, h2, h3 { margin: 0.5em 0 0.5em; }
-
-  // 中等屏幕设备
-  @media (max-width: 1499px) and (min-width: 1200px) {
-    h1 { font-size: 1.5rem; }
-    h2 { font-size: 1.2rem; }
-    h3 { font-size: 1.1rem; }
-  }
-
-
   ul, ol { margin: 1em 0; padding-left: 2em; }
-  li { margin-bottom: 0.5em; }
-
   blockquote {
     margin: 1em 0;
     padding: 0.5em 1em;
@@ -116,7 +104,6 @@
       }
     }
   }
-
   table {
     border-collapse: collapse;
     border-spacing: 0;

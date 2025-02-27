@@ -41,22 +41,11 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    margin-right: 10px;
 
     // 工具栏按钮样式
     .toolbar-button {
-      // 大屏幕设备（例如你的ROG笔记本）
-      @media (min-width: 1500px) {
-        width: 0.8rem;
-        height: 0.8rem;
-      }
-
-      // 中等屏幕设备
-      @media (max-width: 1499px) and (min-width: 1200px) {
-        width: 2rem;
-        height: 2rem;
-      }
-
+      width: 0.6rem;
+      height: 0.6rem;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -94,23 +83,14 @@
   .toolbar-right {
     .theme-selector {
       display: flex;
-      gap: 0.5rem;
+      gap: 8px;
 
       select {
         appearance: none; // 移除默认的下拉箭头
         padding: 2px; // 右侧留出空间放置自定义箭头
         border-radius: 4px;
         cursor: pointer;
-
-        // 大屏幕设备（例如你的ROG笔记本）
-        @media (min-width: 1500px) {
-          font-size: 0.6rem;
-        }
-
-        // 中等屏幕设备
-        @media (max-width: 1499px) and (min-width: 1200px) {
-          font-size: 1rem;
-        }
+        font-size: 5px;
         text-align: center;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;

@@ -10,6 +10,8 @@ import {createExportPlugin} from "@/plugins/base/ExportPlugin";
 
 const Editor: React.FC = () => {
   const { registerPlugin } = usePlugins();
+  const pluginRegistered = useRef(false);
+
   // 初始化插件
   useEffect(() => {
     // 注册核心插件
