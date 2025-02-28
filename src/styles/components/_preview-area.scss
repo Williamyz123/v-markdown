@@ -3,7 +3,7 @@
 .preview-area {
   padding: 1rem;
   overflow-y: auto;
-  font-size: 0.5rem;
+  font-size: 1rem;
 
   @each $theme, $colors in $themes {
     [data-theme='#{$theme}'] & {
@@ -92,7 +92,10 @@
 
   // 其他 Markdown 样式
   h1, h2, h3 { margin: 0.5em 0 0.5em; }
-  ul, ol { margin: 1em 0; padding-left: 2em; }
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.6rem; }
+  ul, ol { margin: 1em 0; padding-left: 1rem; }
   blockquote {
     margin: 1em 0;
     padding: 0.5em 1em;
