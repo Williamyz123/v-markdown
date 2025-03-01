@@ -7,6 +7,8 @@ export const PreviewArea: React.FC = () => {
   const { state } = useEditor();
   const { codeTheme } = useStyles();
   const previewRef = useRef<HTMLDivElement>(null);
+  // 标记是否由编辑区触发的滚动
+  const isEditorScrollingRef = useRef(false);
 
   // 监听主题变化，更新代码块的主题
   useEffect(() => {
@@ -25,9 +27,17 @@ export const PreviewArea: React.FC = () => {
       const percentage = customEvent.detail.percentage;
 
       if (previewRef.current) {
+        // 标记当前滚动是由编辑区域触发的
+        isEditorScrollingRef.current = true;
+
         const previewElement = previewRef.current;
         const scrollHeight = previewElement.scrollHeight - previewElement.clientHeight;
         previewElement.scrollTop = scrollHeight * percentage;
+
+        // 重置标记
+        setTimeout(() => {
+          isEditorScrollingRef.current = false;
+        }, 50);
       }
     };
 
@@ -38,6 +48,21 @@ export const PreviewArea: React.FC = () => {
     };
   }, []);
 
+  // 处理预览区域的滚动事件
+  const handlePreviewScroll = () => {
+    // 如果当前滚动是由编辑区域触发的，不需要再触发事件
+    if (isEditorScrollingRef.current || !previewRef.current) return;
+
+    const previewElement = previewRef.current;
+    const scrollPercentage = previewElement.scrollTop / (previewElement.scrollHeight - previewElement.clientHeight);
+
+    // 触发自定义事件，通知编辑区域滚动
+    const scrollEvent = new CustomEvent('previewScroll', {
+      detail: { percentage: scrollPercentage }
+    });
+    window.dispatchEvent(scrollEvent);
+  };
+
   return (
     <div
       ref={previewRef}
@@ -45,6 +70,7 @@ export const PreviewArea: React.FC = () => {
       dangerouslySetInnerHTML={{
         __html: state.parseResult?.html || ''
       }}
+      onScroll={handlePreviewScroll}
     />
   );
 };

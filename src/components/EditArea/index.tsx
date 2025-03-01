@@ -8,6 +8,8 @@ export const EditArea: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [isFocused, setIsFocused] = useState(false);
+  // 标记是否由预览区触发的滚动
+  const isPreviewScrollingRef = useRef(false);
 
   // 启用快捷键支持，传入 textareaRef
   useKeyboardShortcuts(textareaRef);
@@ -18,6 +20,9 @@ export const EditArea: React.FC = () => {
 
   // 处理滚动事件
   const handleScroll = useCallback((e: React.UIEvent<HTMLTextAreaElement>) => {
+    // 如果当前滚动是由预览区域触发的，不需要再触发事件
+    if (isPreviewScrollingRef.current) return;
+
     const textarea = e.currentTarget;
     const scrollPercentage = textarea.scrollTop / (textarea.scrollHeight - textarea.clientHeight);
 
@@ -26,6 +31,34 @@ export const EditArea: React.FC = () => {
       detail: { percentage: scrollPercentage }
     });
     window.dispatchEvent(scrollEvent);
+  }, []);
+
+  // 监听预览区域的滚动事件
+  useEffect(() => {
+    const handlePreviewScroll = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const percentage = customEvent.detail.percentage;
+
+      if (textareaRef.current) {
+        // 标记当前滚动是由预览区域触发的
+        isPreviewScrollingRef.current = true;
+
+        const textarea = textareaRef.current;
+        const scrollHeight = textarea.scrollHeight - textarea.clientHeight;
+        textarea.scrollTop = scrollHeight * percentage;
+
+        // 重置标记
+        setTimeout(() => {
+          isPreviewScrollingRef.current = false;
+        }, 50);
+      }
+    };
+
+    window.addEventListener('previewScroll', handlePreviewScroll);
+
+    return () => {
+      window.removeEventListener('previewScroll', handlePreviewScroll);
+    };
   }, []);
 
   // 使用 useCallback 记忆化 handleSelect 函数
