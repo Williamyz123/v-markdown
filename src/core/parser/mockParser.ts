@@ -10,6 +10,8 @@ import type {
 } from "@/types/editor";
 
 import MarkdownParser from 'myz-markdown-parser';
+const { getParserInstance } = require('md-markdown-parser');
+
 
 // 定义 Markdown 解析器接口
 export interface IMarkdownParser {
@@ -213,45 +215,41 @@ export class MockMarkdownParser implements IMarkdownParser {
 
   constructor(options: ParserOptions) {
     this.options = options;
-    this.parser = new MarkdownParser();
+    this.parser = getParserInstance({
+      features: {
+        headings: true,       // 启用标题解析
+        emphasis: true,       // 启用强调（斜体、粗体）
+        strikethrough: true,  // 启用删除线
+        lists: true,          // 启用列表
+        link: true,           // 启用链接
+        image: true,          // 启用图片
+        blockquote: true,     // 启用引用块
+        hr: true,             // 启用水平线
+        tables: true,         // 启用表格
+        // 其他可配置功能...
+      },
+      // 可选：代码块配置
+      codeBlock: {},
+      // 可选：安全相关配置
+      security: {},
+      // 可选：性能相关配置
+      performance: {}
+    });
   }
 
   parse(content: string): ParseResult {
+    let htmlFromParser = this.parser.render(content, {});
+    htmlFromParser = htmlFromParser.replace("<p>```", "```")
+    htmlFromParser = htmlFromParser.replace("```</p>", "```")
+    htmlFromParser = htmlFromParser.replace("</p>\n<p>```", "\n\n```")
+
     // 检测并解析代码块
     const codeBlocks = parseCodeBlock(content);
-    let html = content;
-
     // 处理代码块
     codeBlocks.forEach(block => {
       const originalCode = content.substring(block.position.start, block.position.end);
-      html = html.replace(originalCode, codeBlockToHtml(block));
+      htmlFromParser = htmlFromParser.replace(originalCode, codeBlockToHtml(block));
     });
-    console.log("0_1_codeBlocks")
-    console.log(codeBlocks)
-
-    // // 处理其他Markdown语法
-    // html = html
-    //   .split('\n')
-    //   .map(line => {
-    //     if (line.startsWith('# ')) {
-    //       return `<h1>${line.slice(2)}</h1>`;
-    //     }
-    //     if (line.startsWith('## ')) {
-    //       return `<h2>${line.slice(3)}</h2>`;
-    //     }
-    //     if (!line.startsWith('```') && line.trim() !== '') {  // 避免处理代码块标记
-    //       return `<p>${line}</p>`;
-    //     }
-    //     return line;
-    //   })
-    //   .join('\n');
-    //
-    // console.log("0_2_html")
-    // console.log(html);
-
-    let htmlFromParser = this.parser.render(html);
-    console.log("0_3_htmlFromParser")
-    console.log(htmlFromParser);
 
     // 返回解析结果
     return {
@@ -342,7 +340,7 @@ export class MockMarkdownParser implements IMarkdownParser {
 let parserInstance: IMarkdownParser | null = null;
 let parserOptions: ParserOptions | null = null;
 
-export const getParserInstance = (options?: ParserOptions): IMarkdownParser => {
+export const getParserInstanceLocal = (options?: ParserOptions): IMarkdownParser => {
   if (!parserInstance || options !== parserOptions) {
     parserOptions = options || parserOptions;
     parserInstance = new MockMarkdownParser(parserOptions!);

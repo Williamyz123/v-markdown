@@ -1,6 +1,6 @@
 // src/core/editor/EditorContext.tsx
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useRef } from 'react';
-import {getParserInstance, MockMarkdownParser} from '../parser/mockParser';
+import {getParserInstanceLocal, MockMarkdownParser} from '../parser/mockParser';
 import type {
   EditorState,
   EditorAction,
@@ -160,7 +160,7 @@ const EditorContext = createContext<EditorContextType | null>(null);
 export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 初始化解析器实例
   const [state, dispatch] = useReducer(editorReducer, initialEditorState);
-  const parser = useMemo(() => getParserInstance(initialEditorState.options), []);
+  const parser = useMemo(() => getParserInstanceLocal(initialEditorState.options), []);
 
   // 使用 ref 存储最新的状态
   const stateRef = useRef(state);
