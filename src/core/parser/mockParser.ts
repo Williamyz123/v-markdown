@@ -10,7 +10,7 @@ import type {
 } from "@/types/editor";
 
 import MarkdownParser from 'myz-markdown-parser';
-const { getParserInstance } = require('md-markdown-parser');
+// const { getParserInstance } = require('md-markdown-parser');
 
 
 // 定义 Markdown 解析器接口
@@ -215,41 +215,25 @@ export class MockMarkdownParser implements IMarkdownParser {
 
   constructor(options: ParserOptions) {
     this.options = options;
-    this.parser = getParserInstance({
-      features: {
-        headings: true,       // 启用标题解析
-        emphasis: true,       // 启用强调（斜体、粗体）
-        strikethrough: true,  // 启用删除线
-        lists: true,          // 启用列表
-        link: true,           // 启用链接
-        image: true,          // 启用图片
-        blockquote: true,     // 启用引用块
-        hr: true,             // 启用水平线
-        tables: true,         // 启用表格
-        // 其他可配置功能...
-      },
-      // 可选：代码块配置
-      codeBlock: {},
-      // 可选：安全相关配置
-      security: {},
-      // 可选：性能相关配置
-      performance: {}
-    });
+    this.parser = new MarkdownParser();
   }
 
   parse(content: string): ParseResult {
-    let htmlFromParser = this.parser.render(content, {});
-    htmlFromParser = htmlFromParser.replace("<p>```", "```")
-    htmlFromParser = htmlFromParser.replace("```</p>", "```")
-    htmlFromParser = htmlFromParser.replace("</p>\n<p>```", "\n\n```")
-
     // 检测并解析代码块
     const codeBlocks = parseCodeBlock(content);
+    let html = content;
+
     // 处理代码块
     codeBlocks.forEach(block => {
       const originalCode = content.substring(block.position.start, block.position.end);
-      htmlFromParser = htmlFromParser.replace(originalCode, codeBlockToHtml(block));
+      html = html.replace(originalCode, codeBlockToHtml(block));
     });
+    console.log("0_1_codeBlocks")
+    console.log(codeBlocks)
+
+    let htmlFromParser = this.parser.render(html);
+    console.log("0_3_htmlFromParser")
+    console.log(htmlFromParser);
 
     // 返回解析结果
     return {
